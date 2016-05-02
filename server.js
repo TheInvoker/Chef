@@ -17,7 +17,7 @@ var socket = require('socket.io');
  *     req.body.param
  */
 
- 
+
 var NOT_AUTHENTICATED_MESSAGE = 'Access denied, please log in';
 var PERMISSION_DENIED_MESSAGE = 'You do not have permission';
 var NO_USER_FOUND_MESSAGE = 'no user found';
@@ -44,7 +44,7 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-	var sql = pg_escape('SELECT * FROM "user" where id=%I', id);
+	var sql = pg_escape('SELECT * FROM "user" where id=%L', id.toString());
 	var query = client.query(sql);
 	query.on('row', function(row, result) {
 		result.addRow(row);
@@ -52,9 +52,8 @@ passport.deserializeUser(function(id, done) {
 	query.on('end', function(data) { 
 		if (data.rows.length == 1) {
 			return done(null, data.rows[0]);
-		} else {
-			return done(null, false);
 		}
+		return done(null, false);
 	});
 });
 
@@ -71,35 +70,32 @@ passport.use(new LocalStrategy({
 	query.on('end', function(data) { 
 		if (data.rows.length == 1) {
 			return done(null, data.rows[0]);
-		} else {
-			return done(null, false);
 		}
+		return done(null, false);
 	});
 }));
 
 
 function checkAuthentication(req, res, notAuthenticatedMessage, callback) {
-    if (!req.isAuthenticated()) {
-		return res.status(403).jsonp({message: notAuthenticatedMessage});
+    if (req.isAuthenticated()) {
+		return callback();
 	}
-	callback();
+	return res.status(403).jsonp({message: notAuthenticatedMessage});
 }
 function checkPermission(req, res, sqlClient, userID, moduleID, notPermissionMessage, callback) {
-	var sql = pg_escape('SELECT count(*) AS count FROM %I where color=%L', 'test', "r");
-	/*var sql = pg_escape('SELECT count(mp.*) AS count \
-	                     FROM modulePermission mp \
-	                     JOIN user u ON u.id=%I \
-						 WHERE mp.moduleID=%I and mp.roleID=u.roleID', userID, moduleID);*/
+	var sql = pg_escape('SELECT count(mp.*) AS count \
+	                     FROM "modulePermission" mp \
+	                     JOIN "user" u ON u.id=%L \
+						 WHERE mp."moduleID"=%L and mp."roleID"=u."roleID"', userID.toString(), moduleID.toString());
 	var query = client.query(sql);
 	query.on('row', function(row, result) {
 		result.addRow(row);
 	});
 	query.on('end', function(data) { 
 		if (data.rows[0].count === '1') {
-			callback();
-		} else {
-			return res.status(403).jsonp({message: notPermissionMessage});
+			return callback();
 		}
+		return res.status(403).jsonp({message: notPermissionMessage});
 	});
 }
 
@@ -132,7 +128,7 @@ app.post('/login', function(req, res, next) {
     })(req, res, next);
 });
 /*
- * logout.
+ * Logout.
  */
 app.post('/logout', function(req, res, next) {
 	checkAuthentication(req, res, NOT_AUTHENTICATED_MESSAGE, next);
