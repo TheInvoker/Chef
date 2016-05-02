@@ -44,19 +44,26 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {
-	done(null, {
-		'id':1,
-		'username': 'j',
-		'password': 'h'
+	var sql = pg_escape('SELECT * FROM "user" where id=%I', id);
+	var query = client.query(sql);
+	query.on('row', function(row, result) {
+		result.addRow(row);
+	});
+	query.on('end', function(data) { 
+		if (data.rows.length == 1) {
+			return done(null, data.rows[0]);
+		} else {
+			return done(null, false);
+		}
 	});
 });
 
 passport.use(new LocalStrategy({
-	usernameField: 'username',
+	usernameField: 'email',
 	passwordField: 'password',
 	session: true
-}, function(username, password, done) {
-	var sql = pg_escape('SELECT id FROM user where email=%L and password=%L', username, password);
+}, function(email, password, done) {
+	var sql = pg_escape('SELECT * FROM "user" where email=%L and password=%L', email, password);
 	var query = client.query(sql);
 	query.on('row', function(row, result) {
 		result.addRow(row);
