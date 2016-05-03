@@ -77,7 +77,7 @@ passport.use(new LocalStrategy({
 
 
 
-function checkPermission(req, res, sqlClient, userID, moduleID, notPermissionMessage, callback) {
+function checkPermission(req, res, sqlClient, userID, moduleID, callback, failedCallback) {
 	var sql = pg_escape('SELECT count(mp.*) AS count \
 	                     FROM "modulePermission" mp \
 	                     JOIN "user" u ON u.id=%L \
@@ -90,7 +90,7 @@ function checkPermission(req, res, sqlClient, userID, moduleID, notPermissionMes
 		if (data.rows[0].count === '1') {
 			return callback();
 		}
-		return res.status(403).jsonp({message: notPermissionMessage});
+		return failedCallback(req, res);
 	});
 }
 
@@ -170,7 +170,9 @@ app.post('/register/chef', function (req, res) {
 app.get('/user/class', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 1, PERMISSION_DENIED_MESSAGE, next);
+		checkPermission(req, res, client, userID, 1, next, function(req, res) {
+			return res.sendFile('/views/nopermission.html', { root : __dirname}); 
+		});
 	} else {
 		res.sendFile('/views/index.html', { root : __dirname}); 
 	};
@@ -185,7 +187,9 @@ app.get('/user/class', function(req, res, next) {
 app.get('/user/class/registered', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 2, PERMISSION_DENIED_MESSAGE, next);
+		checkPermission(req, res, client, userID, 2, next, function(req, res) {
+			return res.sendFile('/views/nopermission.html', { root : __dirname}); 
+		});
 	} else {
 		res.sendFile('/views/index.html', { root : __dirname}); 
 	};
@@ -200,7 +204,9 @@ app.get('/user/class/registered', function(req, res, next) {
 app.put('/user/class/:classID(\\d+)/feedback', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 3, PERMISSION_DENIED_MESSAGE, next);
+		checkPermission(req, res, client, userID, 3, next, function(req, res) {
+			return res.status(403).jsonp({message: notPermissionMessage});
+		});
 	} else {
 		res.sendFile('/views/index.html', { root : __dirname}); 
 	};
@@ -216,7 +222,9 @@ app.put('/user/class/:classID(\\d+)/feedback', function(req, res, next) {
 app.put('/user/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 4, PERMISSION_DENIED_MESSAGE, next);
+		checkPermission(req, res, client, userID, 4, next, function(req, res) {
+			return res.status(403).jsonp({message: notPermissionMessage});
+		});
 	} else {
 		res.sendFile('/views/index.html', { root : __dirname}); 
 	};
@@ -233,7 +241,9 @@ app.put('/user/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, res
 app.delete('/user/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 5, PERMISSION_DENIED_MESSAGE, next);
+		checkPermission(req, res, client, userID, 5, function(req, res) {
+			return res.status(403).jsonp({message: notPermissionMessage});
+		});
 	} else {
 		res.sendFile('/views/index.html', { root : __dirname}); 
 	};
@@ -250,7 +260,9 @@ app.delete('/user/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, 
 app.get('/chef/class/created', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 6, PERMISSION_DENIED_MESSAGE, next);
+		checkPermission(req, res, client, userID, 6, function(req, res) {
+			return res.sendFile('/views/nopermission.html', { root : __dirname}); 
+		});
 	} else {
 		res.sendFile('/views/index.html', { root : __dirname}); 
 	};
@@ -265,7 +277,9 @@ app.get('/chef/class/created', function(req, res, next) {
 app.put('/chef/class', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 7, PERMISSION_DENIED_MESSAGE, next);
+		checkPermission(req, res, client, userID, 7, function(req, res) {
+			return res.status(403).jsonp({message: notPermissionMessage});
+		});
 	} else {
 		res.sendFile('/views/index.html', { root : __dirname}); 
 	};
@@ -280,7 +294,9 @@ app.put('/chef/class', function(req, res, next) {
 app.delete('/chef/class/:classID(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 8, PERMISSION_DENIED_MESSAGE, next);
+		checkPermission(req, res, client, userID, 8, function(req, res) {
+			return res.status(403).jsonp({message: notPermissionMessage});
+		});
 	} else {
 		res.sendFile('/views/index.html', { root : __dirname}); 
 	};
@@ -296,7 +312,9 @@ app.delete('/chef/class/:classID(\\d+)', function(req, res, next) {
 app.post('/chef/class/:classID(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 9, PERMISSION_DENIED_MESSAGE, next);
+		checkPermission(req, res, client, userID, 9, function(req, res) {
+			return res.status(403).jsonp({message: notPermissionMessage});
+		});
 	} else {
 		res.sendFile('/views/index.html', { root : __dirname}); 
 	};
@@ -312,7 +330,9 @@ app.post('/chef/class/:classID(\\d+)', function(req, res, next) {
 app.put('/chef/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 10, PERMISSION_DENIED_MESSAGE, next);
+		checkPermission(req, res, client, userID, 10, function(req, res) {
+			return res.status(403).jsonp({message: notPermissionMessage});
+		});
 	} else {
 		res.sendFile('/views/index.html', { root : __dirname}); 
 	};
@@ -329,7 +349,9 @@ app.put('/chef/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, res
 app.delete('/chef/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 11, PERMISSION_DENIED_MESSAGE, next);
+		checkPermission(req, res, client, userID, 11, function(req, res) {
+			return res.status(403).jsonp({message: notPermissionMessage});
+		});
 	} else {
 		res.sendFile('/views/index.html', { root : __dirname}); 
 	};
@@ -346,7 +368,9 @@ app.delete('/chef/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, 
 app.post('/chef/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 12, PERMISSION_DENIED_MESSAGE, next);
+		checkPermission(req, res, client, userID, 12, function(req, res) {
+			return res.status(403).jsonp({message: notPermissionMessage});
+		});
 	} else {
 		res.sendFile('/views/index.html', { root : __dirname}); 
 	};
