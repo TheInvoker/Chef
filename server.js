@@ -9,6 +9,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var socket = require('socket.io');
+var handlebars = require('handlebars');
 
 /*   NOTE:
  *   get a GET parameter
