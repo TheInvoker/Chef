@@ -131,7 +131,7 @@ app.post('/login', function(req, res, next) {
  */
 app.get('/logout', function(req, res, next) {
 	if (req.isAuthenticated()) {
-		next(req, res);
+		next();
 	} else {
 		res.sendFile('/views/index.html', { root : __dirname}); 
 	};
