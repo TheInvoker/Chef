@@ -9,6 +9,7 @@ var LocalStrategy = require('passport-local').Strategy;
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var socket = require('socket.io');
+var fs = require('fs');
 var handlebars = require('handlebars');
 
 /*   NOTE:
@@ -95,6 +96,26 @@ function checkPermission(req, res, sqlClient, userID, moduleID, callback, failed
 	});
 }
 
+function renderView(sourceFile, jsonObj, callback) {
+	fs.readFile(sourceFile, function(err, data){
+		if (!err) {
+			// make the buffer into a string
+			var source = data.toString();
+			// call the render function
+			callback(200, renderToString(source, jsonObj));
+		} else {
+			// handle file read error
+			callback(500, "Error occured on server when rendering view.");
+		}
+	});
+}
+
+function renderToString(source, data) {
+  var template = handlebars.compile(source);
+  var outputString = template(data);
+  return outputString;
+}
+
 
 /*
  * Visit the home page.
@@ -103,7 +124,9 @@ app.get('/', function (req, res) {
 	if (req.isAuthenticated()) {
 		res.sendFile('/views/page.html', { root : __dirname}); 
 	} else {
-		res.sendFile('/views/index.html', { root : __dirname}); 
+		renderView(__dirname + '/views/index.html', {title:"Ryan"}, function(code, str) {
+			res.writeHead(code); res.end(str);
+		});
 	};
 });
 /*
