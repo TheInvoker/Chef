@@ -192,23 +192,12 @@ app.get('/forgetpassword', function (req, res) {
 /*
  * User registration.
  */
-app.post('/register/user', function (req, res) {
+app.post('/register', function (req, res) {
 	fs.readFile(__dirname + '/views/header.html', function(err, data){
 		renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
 			res.writeHead(code); res.end(str);
 		});
 	});
-});
-/*
- * Chef registration.
- */
-app.post('/register/chef', function (req, res) {
-	fs.readFile(__dirname + '/views/header.html', function(err, data){
-		renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
-			res.writeHead(code); res.end(str);
-		});
-	});
-
 });
 
 
@@ -216,9 +205,9 @@ app.post('/register/chef', function (req, res) {
 
 
 /*
- * Get all classes available.
+ * Get all questions.
  */
-app.get('/user/class', function(req, res, next) {
+app.get('/questions', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
 		checkPermission(req, res, client, userID, 1, next, function(req, res) {
@@ -237,162 +226,9 @@ app.get('/user/class', function(req, res, next) {
 	}));
 });
 /*
- * Get all classes you are registered in.
+ * Get a question.
  */
-app.get('/user/class/registered', function(req, res, next) {
-    if (req.isAuthenticated()) {
-		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 2, next, function(req, res) {
-			return res.sendFile('/views/nopermission.html', { root : __dirname}); 
-		});
-	} else {
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		});
-	};
-}, function (req, res) {
-	res.end(JSON.stringify({
-		
-	}));
-});
-/*
- * Submit a feedback rating to a class.
- */
-app.put('/user/class/:classID(\\d+)/feedback', function(req, res, next) {
-    if (req.isAuthenticated()) {
-		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 3, next, function(req, res) {
-			return res.status(403).jsonp({message: notPermissionMessage});
-		});
-	} else {
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		});
-	};
-}, function (req, res) {
-	var classID = parseInt(req.params.classID, 10);
-	res.end(JSON.stringify({
-		
-	}));
-});
-/*
- * Sign up for a class with a session.
- */
-app.put('/user/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, res, next) {
-    if (req.isAuthenticated()) {
-		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 4, next, function(req, res) {
-			return res.status(403).jsonp({message: notPermissionMessage});
-		});
-	} else {
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		});
-	};
-}, function (req, res) {
-	var classID = parseInt(req.params.classID, 10),
-	    sessionID = parseInt(req.params.sessionID, 10);
-	res.end(JSON.stringify({
-		
-	}));
-});
-/*
- * Cancel a class with a session.
- */
-app.delete('/user/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, res, next) {
-    if (req.isAuthenticated()) {
-		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 5, function(req, res) {
-			return res.status(403).jsonp({message: notPermissionMessage});
-		});
-	} else {
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		});
-	};
-}, function (req, res) {
-	var classID = parseInt(req.params.classID, 10),
-	    sessionID = parseInt(req.params.sessionID, 10);
-	res.end(JSON.stringify({
-		
-	}));
-});
-/*
- * Get all classes you created.
- */
-app.get('/chef/class/created', function(req, res, next) {
-    if (req.isAuthenticated()) {
-		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 6, function(req, res) {
-			return res.sendFile('/views/nopermission.html', { root : __dirname}); 
-		});
-	} else {
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		});
-	};
-}, function (req, res) {
-	res.end(JSON.stringify({
-		
-	}));
-});
-/*
- * Create a class.
- */
-app.put('/chef/class', function(req, res, next) {
-    if (req.isAuthenticated()) {
-		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 7, function(req, res) {
-			return res.status(403).jsonp({message: notPermissionMessage});
-		});
-	} else {
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		});
-	};
-}, function (req, res) {
-	res.end(JSON.stringify({
-		
-	}));
-});
-/*
- * Delete a class.
- */
-app.delete('/chef/class/:classID(\\d+)', function(req, res, next) {
-    if (req.isAuthenticated()) {
-		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 8, function(req, res) {
-			return res.status(403).jsonp({message: notPermissionMessage});
-		});
-	} else {
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		});
-	};
-}, function (req, res) {
-	var classID = parseInt(req.params.classID, 10);
-	res.end(JSON.stringify({
-		
-	}));
-});
-/*
- * Edit a class.
- */
-app.post('/chef/class/:classID(\\d+)', function(req, res, next) {
+app.get('/questions/:questionID(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
 		checkPermission(req, res, client, userID, 9, function(req, res) {
@@ -406,15 +242,37 @@ app.post('/chef/class/:classID(\\d+)', function(req, res, next) {
 		});
 	};
 }, function (req, res) {
-	var classID = parseInt(req.params.classID, 10);
+	var questionID = parseInt(req.params.questionID, 10);
 	res.end(JSON.stringify({
 		
 	}));
 });
 /*
- * Create a class session.
+ * Edit a question.
  */
-app.put('/chef/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, res, next) {
+app.post('/questions/:questionID(\\d+)', function(req, res, next) {
+    if (req.isAuthenticated()) {
+		var userID = req.session.passport.user;
+		checkPermission(req, res, client, userID, 9, function(req, res) {
+			return res.status(403).jsonp({message: notPermissionMessage});
+		});
+	} else {
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		});
+	};
+}, function (req, res) {
+	var questionID = parseInt(req.params.questionID, 10);
+	res.end(JSON.stringify({
+		
+	}));
+});
+/*
+ * Create a question.
+ */
+app.put('/questions', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
 		checkPermission(req, res, client, userID, 10, function(req, res) {
@@ -428,16 +286,14 @@ app.put('/chef/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, res
 		});
 	};
 }, function (req, res) {
-	var classID = parseInt(req.params.classID, 10),
-	    sessionID = parseInt(req.params.sessionID, 10);
 	res.end(JSON.stringify({
 		
 	}));
 });
 /*
- * Delete a class session.
+ * Delete a question.
  */
-app.delete('/chef/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, res, next) {
+app.delete('/questions/:questionID(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
 		checkPermission(req, res, client, userID, 11, function(req, res) {
@@ -451,37 +307,11 @@ app.delete('/chef/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, 
 		});
 	};
 }, function (req, res) {
-	var classID = parseInt(req.params.classID, 10),
-	    sessionID = parseInt(req.params.sessionID, 10);
+	var questionID = parseInt(req.params.questionID, 10);
 	res.end(JSON.stringify({
 		
 	}));
 });
-/*
- * Edit a class session.
- */
-app.post('/chef/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, res, next) {
-    if (req.isAuthenticated()) {
-		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 12, function(req, res) {
-			return res.status(403).jsonp({message: notPermissionMessage});
-		});
-	} else {
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		});
-	};
-}, function (req, res) {
-	var classID = parseInt(req.params.classID, 10),
-	    sessionID = parseInt(req.params.sessionID, 10);
-	res.end(JSON.stringify({
-		
-	}));
-});
-
-
 
 
 
@@ -491,7 +321,7 @@ var server = app.listen(process.env.PORT || 3000, function () {
 	var host = server.address().address;
 	var port = server.address().port;
 
-	console.log('My app started at http://%s:%s', host, port);
+	console.log('QuickyHealth started at http://%s:%s', host, port);
 });
 
 var io = socket.listen(server);

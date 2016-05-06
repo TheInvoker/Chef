@@ -6,6 +6,14 @@
 
 	<body>
 
+	
+		<div>
+		{{#each questions}}
+		  <p>{{@index}}. {{this}}</p>
+		{{/each}}
+		</div>
+
+	
 		<form id="logoutForm" action="/logout" method="get">
 			<div>
 				<input type="submit" value="Logout" />
