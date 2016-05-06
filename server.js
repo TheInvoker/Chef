@@ -122,12 +122,21 @@ function renderToString(source, data) {
  */
 app.get('/', function (req, res) {
 	if (req.isAuthenticated()) {
-		// download questions
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/page.html', {header:data}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		}); 
+		var sql = pg_escape('SELECT * FROM question');
+		var query = client.query(sql);
+		query.on('row', function(row, result) {
+			result.addRow(row);
+		});
+		query.on('end', function(sqldata) {
+			fs.readFile(__dirname + '/views/header.html', function(err, data){
+				renderView(__dirname + '/views/page.html', {
+					header : data,
+					questions : sqldata.rows
+				}, function(code, str) {
+					res.writeHead(code); res.end(str);
+				});
+			}); 
+		});
 	} else {
 		fs.readFile(__dirname + '/views/header.html', function(err, data){
 			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {

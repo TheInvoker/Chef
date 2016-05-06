@@ -6,12 +6,15 @@
 
 	<body>
 
-	
-		<div>
 		{{#each questions}}
-		  <p>{{@index}}. {{this}}</p>
+			<div>
+			{{@index}}. {{#with this}}
+				{{id}} {{question}}
+				{{no}} {{yes}} {{date_created}} {{date_modified}}
+		    {{/with}}
+			</div>
 		{{/each}}
-		</div>
+		
 		<form id="addQuestionForm" action="/questions" method="post">
 			<div>
 				<input type="text" name="question" value="where am I?"/>
