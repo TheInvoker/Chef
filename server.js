@@ -122,7 +122,7 @@ function renderToString(source, data) {
  */
 app.get('/', function (req, res) {
 	if (req.isAuthenticated()) {
-		var sql = pg_escape('SELECT * FROM question');
+		var sql = pg_escape('SELECT * FROM question ORDER BY RANDOM() LIMIT 20');
 		var query = client.query(sql);
 		query.on('row', function(row, result) {
 			result.addRow(row);
