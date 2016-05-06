@@ -111,9 +111,9 @@ function renderView(sourceFile, jsonObj, callback) {
 }
 
 function renderToString(source, data) {
-  var template = handlebars.compile(source);
-  var outputString = template(data);
-  return outputString;
+	var template = handlebars.compile(source);
+	var outputString = template(data);
+	return outputString;
 }
 
 
@@ -177,19 +177,11 @@ app.get('/logout', function(req, res, next) {
 	if (req.isAuthenticated()) {
 		next();
 	} else {
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		});
+		res.redirect('/');
 	};
 }, function (req, res) {
     req.logout();
-	fs.readFile(__dirname + '/views/header.html', function(err, data){
-		renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
-			res.writeHead(code); res.end(str);
-		});
-	});
+	res.redirect('/');
 });
 /*
  * Forgot password.
@@ -203,18 +195,43 @@ app.get('/forgetpassword', function (req, res) {
  * User registration.
  */
 app.post('/register', function (req, res) {
-	fs.readFile(__dirname + '/views/header.html', function(err, data){
-		renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
-			res.writeHead(code); res.end(str);
-		});
-	});
+	res.redirect('/');
 });
 
 
 
 
 
-
+/*
+ * Get my questions.
+ */
+app.get('/questions/mine', function(req, res, next) {
+    if (req.isAuthenticated()) {
+		var userID = req.session.passport.user;
+		checkPermission(req, res, client, userID, 1, next, function(req, res) {
+			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
+		});
+	} else {
+		res.redirect('/');
+	};
+}, function (req, res) {
+	var userID = req.session.passport.user;
+	var sql = pg_escape('SELECT * FROM question WHERE user_id=%L ORDER BY date_created desc LIMIT 20', userID.toString());
+	var query = client.query(sql);
+	query.on('row', function(row, result) {
+		result.addRow(row);
+	});
+	query.on('end', function(sqldata) {
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/page.html', {
+				header : data,
+				questions : sqldata.rows
+			}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		}); 
+	});
+});
 /*
  * Get a question.
  */
@@ -225,11 +242,7 @@ app.get('/questions/:questionID(\\d+)', function(req, res, next) {
 			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
 		});
 	} else {
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		});
+		res.redirect('/');
 	};
 }, function (req, res) {
 	var questionID = parseInt(req.params.questionID, 10);
@@ -247,11 +260,7 @@ app.post('/questions/:questionID(\\d+)', function(req, res, next) {
 			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
 		});
 	} else {
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		});
+		res.redirect('/');
 	};
 }, function (req, res) {
 	var questionID = parseInt(req.params.questionID, 10);
@@ -269,11 +278,7 @@ app.post('/questions', function(req, res, next) {
 			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
 		});
 	} else {
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		});
+		res.redirect('/');
 	};
 }, function (req, res) {
 	var userID = req.session.passport.user;
@@ -301,11 +306,7 @@ app.delete('/questions/:questionID(\\d+)', function(req, res, next) {
 			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
 		});
 	} else {
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		});
+		res.redirect('/');
 	};
 }, function (req, res) {
 	var questionID = parseInt(req.params.questionID, 10);
