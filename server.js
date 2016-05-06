@@ -122,10 +122,16 @@ function renderToString(source, data) {
  */
 app.get('/', function (req, res) {
 	if (req.isAuthenticated()) {
-		res.sendFile('/views/page.html', { root : __dirname}); 
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/page.html', {header:data}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		}); 
 	} else {
-		renderView(__dirname + '/views/index.html', {title:"Ryan"}, function(code, str) {
-			res.writeHead(code); res.end(str);
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
 		});
 	};
 });
@@ -146,7 +152,11 @@ app.post('/login', function(req, res, next) {
             if (err) {
 				return next(err);
 			}
-			return res.sendFile('views/page.html', { root : __dirname}); 
+			fs.readFile(__dirname + '/views/header.html', function(err, data){
+				renderView(__dirname + '/views/page.html', {header:data}, function(code, str) {
+					res.writeHead(code); res.end(str);
+				});
+			}); 
         });
     })(req, res, next);
 });
@@ -157,11 +167,19 @@ app.get('/logout', function(req, res, next) {
 	if (req.isAuthenticated()) {
 		next();
 	} else {
-		res.sendFile('/views/index.html', { root : __dirname}); 
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		});
 	};
 }, function (req, res) {
     req.logout();
-	res.sendFile('/views/index.html', { root : __dirname}); 
+	fs.readFile(__dirname + '/views/header.html', function(err, data){
+		renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+			res.writeHead(code); res.end(str);
+		});
+	});
 });
 /*
  * Forgot password.
@@ -175,13 +193,22 @@ app.get('/forgetpassword', function (req, res) {
  * User registration.
  */
 app.post('/register/user', function (req, res) {
-	res.sendFile('/views/index.html', { root : __dirname}); 
+	fs.readFile(__dirname + '/views/header.html', function(err, data){
+		renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+			res.writeHead(code); res.end(str);
+		});
+	});
 });
 /*
  * Chef registration.
  */
 app.post('/register/chef', function (req, res) {
-	res.sendFile('/views/index.html', { root : __dirname}); 
+	fs.readFile(__dirname + '/views/header.html', function(err, data){
+		renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+			res.writeHead(code); res.end(str);
+		});
+	});
+
 });
 
 
@@ -198,7 +225,11 @@ app.get('/user/class', function(req, res, next) {
 			return res.sendFile('/views/nopermission.html', { root : __dirname}); 
 		});
 	} else {
-		res.sendFile('/views/index.html', { root : __dirname}); 
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		});
 	};
 }, function (req, res) {
 	res.end(JSON.stringify({
@@ -215,7 +246,11 @@ app.get('/user/class/registered', function(req, res, next) {
 			return res.sendFile('/views/nopermission.html', { root : __dirname}); 
 		});
 	} else {
-		res.sendFile('/views/index.html', { root : __dirname}); 
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		});
 	};
 }, function (req, res) {
 	res.end(JSON.stringify({
@@ -232,7 +267,11 @@ app.put('/user/class/:classID(\\d+)/feedback', function(req, res, next) {
 			return res.status(403).jsonp({message: notPermissionMessage});
 		});
 	} else {
-		res.sendFile('/views/index.html', { root : __dirname}); 
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		});
 	};
 }, function (req, res) {
 	var classID = parseInt(req.params.classID, 10);
@@ -250,7 +289,11 @@ app.put('/user/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, res
 			return res.status(403).jsonp({message: notPermissionMessage});
 		});
 	} else {
-		res.sendFile('/views/index.html', { root : __dirname}); 
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		});
 	};
 }, function (req, res) {
 	var classID = parseInt(req.params.classID, 10),
@@ -269,7 +312,11 @@ app.delete('/user/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, 
 			return res.status(403).jsonp({message: notPermissionMessage});
 		});
 	} else {
-		res.sendFile('/views/index.html', { root : __dirname}); 
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		});
 	};
 }, function (req, res) {
 	var classID = parseInt(req.params.classID, 10),
@@ -288,7 +335,11 @@ app.get('/chef/class/created', function(req, res, next) {
 			return res.sendFile('/views/nopermission.html', { root : __dirname}); 
 		});
 	} else {
-		res.sendFile('/views/index.html', { root : __dirname}); 
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		});
 	};
 }, function (req, res) {
 	res.end(JSON.stringify({
@@ -305,7 +356,11 @@ app.put('/chef/class', function(req, res, next) {
 			return res.status(403).jsonp({message: notPermissionMessage});
 		});
 	} else {
-		res.sendFile('/views/index.html', { root : __dirname}); 
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		});
 	};
 }, function (req, res) {
 	res.end(JSON.stringify({
@@ -322,7 +377,11 @@ app.delete('/chef/class/:classID(\\d+)', function(req, res, next) {
 			return res.status(403).jsonp({message: notPermissionMessage});
 		});
 	} else {
-		res.sendFile('/views/index.html', { root : __dirname}); 
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		});
 	};
 }, function (req, res) {
 	var classID = parseInt(req.params.classID, 10);
@@ -340,7 +399,11 @@ app.post('/chef/class/:classID(\\d+)', function(req, res, next) {
 			return res.status(403).jsonp({message: notPermissionMessage});
 		});
 	} else {
-		res.sendFile('/views/index.html', { root : __dirname}); 
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		});
 	};
 }, function (req, res) {
 	var classID = parseInt(req.params.classID, 10);
@@ -358,7 +421,11 @@ app.put('/chef/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, res
 			return res.status(403).jsonp({message: notPermissionMessage});
 		});
 	} else {
-		res.sendFile('/views/index.html', { root : __dirname}); 
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		});
 	};
 }, function (req, res) {
 	var classID = parseInt(req.params.classID, 10),
@@ -377,7 +444,11 @@ app.delete('/chef/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, 
 			return res.status(403).jsonp({message: notPermissionMessage});
 		});
 	} else {
-		res.sendFile('/views/index.html', { root : __dirname}); 
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		});
 	};
 }, function (req, res) {
 	var classID = parseInt(req.params.classID, 10),
@@ -396,7 +467,11 @@ app.post('/chef/class/:classID(\\d+)/session/:sessionID(\\d+)', function(req, re
 			return res.status(403).jsonp({message: notPermissionMessage});
 		});
 	} else {
-		res.sendFile('/views/index.html', { root : __dirname}); 
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		});
 	};
 }, function (req, res) {
 	var classID = parseInt(req.params.classID, 10),
