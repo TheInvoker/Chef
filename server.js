@@ -139,7 +139,7 @@ app.get('/', function (req, res) {
 		});
 	} else {
 		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/index.html', {header:data}, function(code, str) {
+			renderView(__dirname + '/views/index.html', {header:data,message:'Please log in'}, function(code, str) {
 				res.writeHead(code); res.end(str);
 			});
 		});
@@ -154,16 +154,20 @@ app.post('/login', function(req, res, next) {
 			return next(err);
 		}
         if (!user) {
-			return res.status(403).jsonp({message: NO_USER_FOUND_MESSAGE});
-        }
-
-        // Manually establish the session...
-        req.login(user, function(err) {
-            if (err) {
-				return next(err);
-			}
-			res.redirect('/');
-        });
+			fs.readFile(__dirname + '/views/header.html', function(err, data){
+				renderView(__dirname + '/views/index.html', {header:data,message:NO_USER_FOUND_MESSAGE}, function(code, str) {
+					res.writeHead(code); res.end(str);
+				});
+			});
+        } else {
+			// Manually establish the session...
+			req.login(user, function(err) {
+				if (err) {
+					return next(err);
+				}
+				res.redirect('/');
+			});
+		}
     })(req, res, next);
 });
 /*
