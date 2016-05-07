@@ -27,8 +27,6 @@ var USER_AUTHENTICATED = 'ok';
 var connectionString = process.env.DATABASE_URL || 'postgres://postgres:root@localhost:5432/piq';
 var db = pgp(connectionString);
 var qrm = pgp.queryResult;
-//var client = new pg.Client(connectionString);
-//client.connect();
 
 
 
@@ -237,9 +235,14 @@ app.get('/questions/:questionID(\\d+)', function(req, res, next) {
 	};
 }, function (req, res) {
 	var questionID = parseInt(req.params.questionID, 10);
-	res.writeHead(403); res.end(JSON.stringify({
-		
-	}));
+	db.query('SELECT * from question where id=$1', questionID, qrm.one).then(function (data) {
+		res.end(JSON.stringify({
+			"question" : data
+		}));
+	}).catch(function (error) {
+		res.writeHead(403); 
+		res.end(JSON.stringify(error));
+	});
 });
 /*
  * Edit a question.
