@@ -10,6 +10,7 @@ var cookieParser = require('cookie-parser');
 var socket = require('socket.io');
 var fs = require('fs');
 var handlebars = require('handlebars');
+var dateFormat = require('dateformat');
 
 /*   NOTE:
  *   get a GET parameter
@@ -18,7 +19,16 @@ var handlebars = require('handlebars');
  *     req.body.param
  */
 
- 
+handlebars.registerHelper("formatDate", function(datetime, format) {
+	var date = new Date(Date.parse(datetime));
+	if (format == "long") {
+		var str = dateFormat(date, "mmmm dS, yyyy, h:MM:ss TT");
+	} else {
+		var str = date.toString();
+	}
+	return new handlebars.SafeString(str);
+});
+
 var NOT_AUTHENTICATED_MESSAGE = 'Access denied, please log in';
 var PERMISSION_DENIED_MESSAGE = 'You do not have permission';
 var NO_USER_FOUND_MESSAGE = 'no user found';

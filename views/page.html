@@ -5,12 +5,12 @@
 	</head>
 
 	<body>
-
+ 
 		{{#each questions}}
 			<div>
 			{{@index}}. {{#with this}}
 				id={{id}} {{question}}
-				{{no}} {{yes}} {{date_created}} {{date_modified}}
+				{{no}} {{yes}} {{formatDate date_created "long"}} {{formatDate date_modified "long"}}
 		    {{/with}}
 			</div>
 		{{/each}}
