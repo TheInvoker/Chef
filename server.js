@@ -73,7 +73,6 @@ passport.use(new LocalStrategy({
 }));
 
 
-
 function checkPermission(req, res, userID, moduleID, callback, failedCallback) {
 	db.query('SELECT count(mp.*) AS count \
 	          FROM "modulePermission" mp \
@@ -88,6 +87,7 @@ function checkPermission(req, res, userID, moduleID, callback, failedCallback) {
 		return failedCallback(req, res);
 	});
 }
+
 
 function renderView(sourceFile, jsonObj, callback) {
 	fs.readFile(sourceFile, function(err, data){
