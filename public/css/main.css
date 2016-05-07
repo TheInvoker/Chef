@@ -6,4 +6,31 @@ html, body {
 body {
 	overflow-x: hidden;
 	overflow-y: hidden;
+	background-color:#d2d2d2;
+}
+body,input,button {
+	font-family: Open Sans;
+}
+
+div.content {
+	border:1px solid #ddd;
+	background-color:white;
+	margin:1em;
+	padding:1em;
+	text-align:center;
+}
+form {
+	display:inline-block;
+}
+form > table {
+	text-align:left;
+}
+form input {
+	box-sizing: border-box;
+}
+form input[type='submit'] {
+	width:100%;
+}
+.important {
+	color:red;
 }

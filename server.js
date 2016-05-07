@@ -172,15 +172,21 @@ app.get('/logout', function(req, res, next) {
  * Forgot password.
  */
 app.get('/forgetpassword', function (req, res) {
-    res.end(JSON.stringify({
-        
-    }));
+	fs.readFile(__dirname + '/views/header.html', function(err, data){
+		renderView(__dirname + '/views/forgotpassword.html', {header:data}, function(code, str) {
+			res.writeHead(code); res.end(str);
+		});
+	});
 });
 /*
  * User registration.
  */
-app.post('/register', function (req, res) {
-    res.redirect('/login');
+app.get('/register', function (req, res) {
+	fs.readFile(__dirname + '/views/header.html', function(err, data){
+		renderView(__dirname + '/views/register.html', {header:data}, function(code, str) {
+			res.writeHead(code); res.end(str);
+		});
+	});
 });
 /*
  * Get public questions.
