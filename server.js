@@ -115,26 +115,20 @@ function renderToString(source, data) {
  */
 app.get('/', function (req, res) {
 	if (req.isAuthenticated()) {
-		db.query('SELECT * FROM question ORDER BY RANDOM() LIMIT 20', undefined, qrm.any).then(function (sqldata) {
-			fs.readFile(__dirname + '/views/header.html', function(err, data){
-				renderView(__dirname + '/views/page.html', {
-					header : data,
-					questions : sqldata
-				}, function(code, str) {
-					res.writeHead(code); res.end(str);
-				});
-			});
-		}).catch(function (error) {
-			console.log(error);
-			res.writeHead(403); res.end(JSON.stringify(error));
-		});
+		res.redirect('/questions');
 	} else {
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/index.html', {header:data,message:'Please log in'}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		});
+		res.redirect('/login');
 	};
+});
+/*
+ * Login page.
+ */
+app.get('/login', function (req, res) {
+	fs.readFile(__dirname + '/views/header.html', function(err, data){
+		renderView(__dirname + '/views/index.html', {header:data,message:'Please log in'}, function(code, str) {
+			res.writeHead(code); res.end(str);
+		});
+	});
 });
 /*
  * Login.
@@ -156,23 +150,23 @@ app.post('/login', function(req, res, next) {
 				if (err) {
 					return next(err);
 				}
-				res.redirect('/');
+				res.redirect('/questions');
 			});
 		}
     })(req, res, next);
 });
 /*
- * Logout.
+ * Logout page.
  */
 app.get('/logout', function(req, res, next) {
 	if (req.isAuthenticated()) {
 		next();
 	} else {
-		res.redirect('/');
+		res.redirect('/login');
 	};
 }, function (req, res) {
     req.logout();
-	res.redirect('/');
+	res.redirect('/login');
 });
 /*
  * Forgot password.
@@ -186,12 +180,38 @@ app.get('/forgetpassword', function (req, res) {
  * User registration.
  */
 app.post('/register', function (req, res) {
-	res.redirect('/');
+	res.redirect('/login');
 });
 
 
 
-
+/*
+ * Get public questions.
+ */
+app.get('/questions', function(req, res, next) {
+    if (req.isAuthenticated()) {
+		var userID = req.session.passport.user;
+		checkPermission(req, res, userID, 1, next, function(req, res) {
+			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
+		});
+	} else {
+		res.redirect('/');
+	};
+}, function (req, res) {
+	db.query('SELECT * FROM question ORDER BY RANDOM() LIMIT 20 OFFSET 0', undefined, qrm.any).then(function (sqldata) {
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/page.html', {
+				header : data,
+				questions : sqldata
+			}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		});
+	}).catch(function (error) {
+		console.log(error);
+		res.writeHead(403); res.end(JSON.stringify(error));
+	});
+});
 
 /*
  * Get my questions.
@@ -203,7 +223,7 @@ app.get('/questions/mine', function(req, res, next) {
 			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
 		});
 	} else {
-		res.redirect('/');
+		res.redirect('/login');
 	};
 }, function (req, res) {
 	var userID = req.session.passport.user;
@@ -231,7 +251,7 @@ app.get('/questions/:questionID(\\d+)', function(req, res, next) {
 			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
 		});
 	} else {
-		res.redirect('/');
+		res.redirect('/login');
 	};
 }, function (req, res) {
 	var questionID = parseInt(req.params.questionID, 10);
@@ -254,7 +274,7 @@ app.post('/questions/:questionID(\\d+)', function(req, res, next) {
 			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
 		});
 	} else {
-		res.redirect('/');
+		return res.status(403).jsonp({message: NOT_AUTHENTICATED_MESSAGE});
 	};
 }, function (req, res) {
 	var userID = req.session.passport.user;
@@ -278,7 +298,7 @@ app.post('/questions', function(req, res, next) {
 			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
 		});
 	} else {
-		res.redirect('/');
+		return res.status(403).jsonp({message: NOT_AUTHENTICATED_MESSAGE});
 	};
 }, function (req, res) {
 	var userID = req.session.passport.user;
@@ -303,7 +323,7 @@ app.post('/questions/:questionID(\\d+)/delete', function(req, res, next) {
 			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
 		});
 	} else {
-		res.redirect('/');
+		return res.status(403).jsonp({message: NOT_AUTHENTICATED_MESSAGE});
 	};
 }, function (req, res) {
 	var userID = req.session.passport.user;
@@ -326,7 +346,7 @@ app.post('/questions/:questionID(\\d+)/yes', function(req, res, next) {
 			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
 		});
 	} else {
-		res.redirect('/');
+		return res.status(403).jsonp({message: NOT_AUTHENTICATED_MESSAGE});
 	};
 }, function (req, res) {
 	var userID = req.session.passport.user;
@@ -349,7 +369,7 @@ app.post('/questions/:questionID(\\d+)/no', function(req, res, next) {
 			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
 		});
 	} else {
-		res.redirect('/');
+		return res.status(403).jsonp({message: NOT_AUTHENTICATED_MESSAGE});
 	};
 }, function (req, res) {
 	var userID = req.session.passport.user;
