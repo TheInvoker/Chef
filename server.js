@@ -41,72 +41,72 @@ app.use(passport.session());
 
 
 passport.serializeUser(function(user, done) {
-	done(null, user.id);
+    done(null, user.id);
 });
 
-passport.deserializeUser(function(id, done) {	
-	db.query('SELECT * FROM "user" where id=$1', id, qrm.one).then(function (data) {
-		if (data) {
-			return done(null, data);
-		}
-		return done(null, false);
-	}).catch(function (error) {
-		console.log(error);
-		return done(null, false);
-	});
+passport.deserializeUser(function(id, done) {    
+    db.query('SELECT * FROM "user" where id=$1', id, qrm.one).then(function (data) {
+        if (data) {
+            return done(null, data);
+        }
+        return done(null, false);
+    }).catch(function (error) {
+        console.log(error);
+        return done(null, false);
+    });
 });
 
 passport.use(new LocalStrategy({
-	usernameField: 'email',
-	passwordField: 'password',
-	session: true
-}, function(email, password, done) {	
-	db.query('SELECT * FROM "user" where email=$1 and password=$2', [email, password], qrm.one).then(function (data) {
-		if (data) {
-			return done(null, data);
-		}
-		return done(null, false);
-	}).catch(function (error) {
-		console.log(error);
-		return done(null, false);
-	});
+    usernameField: 'email',
+    passwordField: 'password',
+    session: true
+}, function(email, password, done) {    
+    db.query('SELECT * FROM "user" where email=$1 and password=$2', [email, password], qrm.one).then(function (data) {
+        if (data) {
+            return done(null, data);
+        }
+        return done(null, false);
+    }).catch(function (error) {
+        console.log(error);
+        return done(null, false);
+    });
 }));
 
 
 function checkPermission(req, res, userID, moduleID, callback, failedCallback) {
-	db.query('SELECT mp.* AS count \
-	          FROM "modulePermission" mp \
-	          JOIN "user" u ON u.id=$1 \
-			  WHERE mp."moduleID"=$2 and mp."roleID"=u."roleID"', [userID, moduleID], qrm.one).then(function (data) {
-		if (data) {
-			return callback();
-		}
-		return failedCallback(req, res);
-	}).catch(function (error) {
-		console.log(error);
-		return failedCallback(req, res);
-	});
+    db.query('SELECT mp.* AS count \
+              FROM "modulePermission" mp \
+              JOIN "user" u ON u.id=$1 \
+              WHERE mp."moduleID"=$2 and mp."roleID"=u."roleID"', [userID, moduleID], qrm.one).then(function (data) {
+        if (data) {
+            return callback();
+        }
+        return failedCallback(req, res);
+    }).catch(function (error) {
+        console.log(error);
+        return failedCallback(req, res);
+    });
 }
 
 
 function renderView(sourceFile, jsonObj, callback) {
-	fs.readFile(sourceFile, function(err, data){
-		if (!err) {
-			// make the buffer into a string
-			var source = data.toString();
-			// call the render function
-			callback(200, renderToString(source, jsonObj));
-		} else {
-			// handle file read error
-			callback(500, "Error occured on server when rendering view.");
-		}
-	});
+    fs.readFile(sourceFile, function(err, data){
+        if (!err) {
+            // make the buffer into a string
+            var source = data.toString();
+            // call the render function
+            callback(200, renderToString(source, jsonObj));
+        } else {
+            // handle file read error
+            callback(500, "Error occured on server when rendering view.");
+        }
+    });
 }
 
 function renderToString(source, data) {
-	var template = handlebars.compile(source);
-	var outputString = template(data);
-	return outputString;
+    var template = handlebars.compile(source);
+    var outputString = template(data);
+    return outputString;
 }
 
 
@@ -114,21 +114,21 @@ function renderToString(source, data) {
  * Visit the home page.
  */
 app.get('/', function (req, res) {
-	if (req.isAuthenticated()) {
-		res.redirect('/questions/0');
-	} else {
-		res.redirect('/login');
-	};
+    if (req.isAuthenticated()) {
+        res.redirect('/questions/0');
+    } else {
+        res.redirect('/login');
+    };
 });
 /*
  * Login page.
  */
 app.get('/login', function (req, res) {
-	fs.readFile(__dirname + '/views/header.html', function(err, data){
-		renderView(__dirname + '/views/index.html', {header:data,message:'Please log in'}, function(code, str) {
-			res.writeHead(code); res.end(str);
-		});
-	});
+    fs.readFile(__dirname + '/views/header.html', function(err, data){
+        renderView(__dirname + '/views/index.html', {header:data,message:'Please log in'}, function(code, str) {
+            res.writeHead(code); res.end(str);
+        });
+    });
 });
 /*
  * Login.
@@ -136,79 +136,79 @@ app.get('/login', function (req, res) {
 app.post('/login', function(req, res, next) {
     passport.authenticate('local', function(err, user, info) {
         if (err) {
-			return next(err);
-		}
+            return next(err);
+        }
         if (!user) {
-			fs.readFile(__dirname + '/views/header.html', function(err, data){
-				renderView(__dirname + '/views/index.html', {header:data,message:NO_USER_FOUND_MESSAGE}, function(code, str) {
-					res.writeHead(code); res.end(str);
-				});
-			});
+            fs.readFile(__dirname + '/views/header.html', function(err, data){
+                renderView(__dirname + '/views/index.html', {header:data,message:NO_USER_FOUND_MESSAGE}, function(code, str) {
+                    res.writeHead(code); res.end(str);
+                });
+            });
         } else {
-			// Manually establish the session...
-			req.login(user, function(err) {
-				if (err) {
-					return next(err);
-				}
-				res.redirect('/questions/0');
-			});
-		}
+            // Manually establish the session...
+            req.login(user, function(err) {
+                if (err) {
+                    return next(err);
+                }
+                res.redirect('/questions/0');
+            });
+        }
     })(req, res, next);
 });
 /*
  * Logout page.
  */
 app.get('/logout', function(req, res, next) {
-	if (req.isAuthenticated()) {
-		next();
-	} else {
-		res.redirect('/login');
-	};
+    if (req.isAuthenticated()) {
+        next();
+    } else {
+        res.redirect('/login');
+    };
 }, function (req, res) {
     req.logout();
-	res.redirect('/login');
+    res.redirect('/login');
 });
 /*
  * Forgot password.
  */
 app.get('/forgetpassword', function (req, res) {
-	res.end(JSON.stringify({
-		
-	}));
+    res.end(JSON.stringify({
+        
+    }));
 });
 /*
  * User registration.
  */
 app.post('/register', function (req, res) {
-	res.redirect('/login');
+    res.redirect('/login');
 });
 /*
  * Get public questions.
  */
 app.get('/questions/:page(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
-		var userID = req.session.passport.user;
-		checkPermission(req, res, userID, 1, next, function(req, res) {
-			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
-		});
-	} else {
-		res.redirect('/');
-	};
+        var userID = req.session.passport.user;
+        checkPermission(req, res, userID, 1, next, function(req, res) {
+            return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
+        });
+    } else {
+        res.redirect('/');
+    };
 }, function (req, res) {
-	var page = parseInt(req.params.page, 10) * page_size;
-	db.query('SELECT * FROM question ORDER BY RANDOM() LIMIT $1 OFFSET $2', [page_size, page], qrm.any).then(function (sqldata) {
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/page.html', {
-				header : data,
-				questions : sqldata
-			}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		});
-	}).catch(function (error) {
-		res.writeHead(403); 
-		res.end(JSON.stringify(error));
-	});
+    var page = parseInt(req.params.page, 10) * page_size;
+    db.query('SELECT * FROM question ORDER BY RANDOM() LIMIT $1 OFFSET $2', [page_size, page], qrm.any).then(function (sqldata) {
+        fs.readFile(__dirname + '/views/header.html', function(err, data){
+            renderView(__dirname + '/views/page.html', {
+                header : data,
+                questions : sqldata
+            }, function(code, str) {
+                res.writeHead(code); res.end(str);
+            });
+        });
+    }).catch(function (error) {
+        res.writeHead(403); 
+        res.end(JSON.stringify(error));
+    });
 });
 
 /*
@@ -216,187 +216,187 @@ app.get('/questions/:page(\\d+)', function(req, res, next) {
  */
 app.get('/questions/mine/:page(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
-		var userID = req.session.passport.user;
-		checkPermission(req, res, userID, 1, next, function(req, res) {
-			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
-		});
-	} else {
-		res.redirect('/login');
-	};
+        var userID = req.session.passport.user;
+        checkPermission(req, res, userID, 1, next, function(req, res) {
+            return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
+        });
+    } else {
+        res.redirect('/login');
+    };
 }, function (req, res) {
-	var userID = req.session.passport.user;
-	var page = parseInt(req.params.page, 10) * page_size;
-	db.query('SELECT * FROM question WHERE user_id=$1 ORDER BY date_created desc LIMIT $2 OFFSET $3', [userID, page_size, page], qrm.any).then(function (sqldata) {		
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/page.html', {
-				header : data,
-				questions : sqldata
-			}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
-		}); 
-	}).catch(function (error) {
-		res.writeHead(403); 
-		res.end(JSON.stringify(error));
-	});
+    var userID = req.session.passport.user;
+    var page = parseInt(req.params.page, 10) * page_size;
+    db.query('SELECT * FROM question WHERE user_id=$1 ORDER BY date_created desc LIMIT $2 OFFSET $3', [userID, page_size, page], qrm.any).then(function (sqldata) {        
+        fs.readFile(__dirname + '/views/header.html', function(err, data){
+            renderView(__dirname + '/views/page.html', {
+                header : data,
+                questions : sqldata
+            }, function(code, str) {
+                res.writeHead(code); res.end(str);
+            });
+        }); 
+    }).catch(function (error) {
+        res.writeHead(403); 
+        res.end(JSON.stringify(error));
+    });
 });
 /*
  * Get a question.
  */
 app.get('/questions/:questionID(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
-		var userID = req.session.passport.user;
-		checkPermission(req, res, userID, 1, next, function(req, res) {
-			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
-		});
-	} else {
-		res.redirect('/login');
-	};
+        var userID = req.session.passport.user;
+        checkPermission(req, res, userID, 1, next, function(req, res) {
+            return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
+        });
+    } else {
+        res.redirect('/login');
+    };
 }, function (req, res) {
-	var questionID = parseInt(req.params.questionID, 10);
-	db.query('SELECT * from question where id=$1', questionID, qrm.one).then(function (data) {
-		res.end(JSON.stringify({
-			"question" : data
-		}));
-	}).catch(function (error) {
-		res.writeHead(403); 
-		res.end(JSON.stringify(error));
-	});
+    var questionID = parseInt(req.params.questionID, 10);
+    db.query('SELECT * from question where id=$1', questionID, qrm.one).then(function (data) {
+        res.end(JSON.stringify({
+            "question" : data
+        }));
+    }).catch(function (error) {
+        res.writeHead(403); 
+        res.end(JSON.stringify(error));
+    });
 });
 /*
  * Edit a question.
  */
 app.post('/questions/:questionID(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
-		var userID = req.session.passport.user;
-		checkPermission(req, res, userID, 1, next, function(req, res) {
-			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
-		});
-	} else {
-		return res.status(403).jsonp({message: NOT_AUTHENTICATED_MESSAGE});
-	};
+        var userID = req.session.passport.user;
+        checkPermission(req, res, userID, 1, next, function(req, res) {
+            return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
+        });
+    } else {
+        return res.status(403).jsonp({message: NOT_AUTHENTICATED_MESSAGE});
+    };
 }, function (req, res) {
-	var userID = req.session.passport.user;
-	var question = req.body.question;
-	var questionID = parseInt(req.params.questionID, 10);
-	db.query('UPDATE question set question=$1,date_modified=now() WHERE id=$2 and user_id=$3', [question,questionID,userID], qrm.none).then(function () {
-		res.end(JSON.stringify({
-		}));
-	}).catch(function (error) {
-		res.writeHead(403); 
-		res.end(JSON.stringify(error));
-	});
+    var userID = req.session.passport.user;
+    var question = req.body.question;
+    var questionID = parseInt(req.params.questionID, 10);
+    db.query('UPDATE question set question=$1,date_modified=now() WHERE id=$2 and user_id=$3', [question,questionID,userID], qrm.none).then(function () {
+        res.end(JSON.stringify({
+        }));
+    }).catch(function (error) {
+        res.writeHead(403); 
+        res.end(JSON.stringify(error));
+    });
 });
 /*
  * Create a question.
  */
 app.post('/questions', function(req, res, next) {
     if (req.isAuthenticated()) {
-		var userID = req.session.passport.user;
-		checkPermission(req, res, userID, 1, next, function(req, res) {
-			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
-		});
-	} else {
-		return res.status(403).jsonp({message: NOT_AUTHENTICATED_MESSAGE});
-	};
+        var userID = req.session.passport.user;
+        checkPermission(req, res, userID, 1, next, function(req, res) {
+            return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
+        });
+    } else {
+        return res.status(403).jsonp({message: NOT_AUTHENTICATED_MESSAGE});
+    };
 }, function (req, res) {
-	var userID = req.session.passport.user;
-	var question = req.body.question;
-	db.query('INSERT INTO question (question,date_created,date_modified,user_id,yes,no) \
-			  VALUES ($1,now(),now(),$2,0,0) RETURNING id', [question, userID], qrm.one).then(function (data) {
-		res.end(JSON.stringify({
-			"id" : data.id
-		}));
-	}).catch(function (error) {
-		res.writeHead(403); 
-		res.end(JSON.stringify(error));
-	});
+    var userID = req.session.passport.user;
+    var question = req.body.question;
+    db.query('INSERT INTO question (question,date_created,date_modified,user_id,yes,no) \
+              VALUES ($1,now(),now(),$2,0,0) RETURNING id', [question, userID], qrm.one).then(function (data) {
+        res.end(JSON.stringify({
+            "id" : data.id
+        }));
+    }).catch(function (error) {
+        res.writeHead(403); 
+        res.end(JSON.stringify(error));
+    });
 });
 /*
  * Delete a question.
  */
 app.post('/questions/:questionID(\\d+)/delete', function(req, res, next) {
     if (req.isAuthenticated()) {
-		var userID = req.session.passport.user;
-		checkPermission(req, res, userID, 1, next, function(req, res) {
-			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
-		});
-	} else {
-		return res.status(403).jsonp({message: NOT_AUTHENTICATED_MESSAGE});
-	};
+        var userID = req.session.passport.user;
+        checkPermission(req, res, userID, 1, next, function(req, res) {
+            return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
+        });
+    } else {
+        return res.status(403).jsonp({message: NOT_AUTHENTICATED_MESSAGE});
+    };
 }, function (req, res) {
-	var userID = req.session.passport.user;
-	var questionID = parseInt(req.params.questionID, 10);
-	db.query('DELETE FROM question WHERE id=$1 and user_id=$2', [questionID,userID], qrm.none).then(function () {
-		res.end(JSON.stringify({
-		}));
-	}).catch(function (error) {
-		res.writeHead(403); 
-		res.end(JSON.stringify(error));
-	});
+    var userID = req.session.passport.user;
+    var questionID = parseInt(req.params.questionID, 10);
+    db.query('DELETE FROM question WHERE id=$1 and user_id=$2', [questionID,userID], qrm.none).then(function () {
+        res.end(JSON.stringify({
+        }));
+    }).catch(function (error) {
+        res.writeHead(403); 
+        res.end(JSON.stringify(error));
+    });
 });
 /*
  * Vote yes on a question.
  */
 app.post('/questions/:questionID(\\d+)/yes', function(req, res, next) {
     if (req.isAuthenticated()) {
-		var userID = req.session.passport.user;
-		checkPermission(req, res, userID, 1, next, function(req, res) {
-			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
-		});
-	} else {
-		return res.status(403).jsonp({message: NOT_AUTHENTICATED_MESSAGE});
-	};
+        var userID = req.session.passport.user;
+        checkPermission(req, res, userID, 1, next, function(req, res) {
+            return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
+        });
+    } else {
+        return res.status(403).jsonp({message: NOT_AUTHENTICATED_MESSAGE});
+    };
 }, function (req, res) {
-	var userID = req.session.passport.user;
-	var questionID = parseInt(req.params.questionID, 10);
-	db.query('UPDATE question set yes=yes+1 WHERE id=$1 and user_id!=$2', [questionID,userID], qrm.none).then(function () {
-		res.end(JSON.stringify({
-		}));
-	}).catch(function (error) {
-		res.writeHead(403); 
-		res.end(JSON.stringify(error));
-	});
+    var userID = req.session.passport.user;
+    var questionID = parseInt(req.params.questionID, 10);
+    db.query('UPDATE question set yes=yes+1 WHERE id=$1 and user_id!=$2', [questionID,userID], qrm.none).then(function () {
+        res.end(JSON.stringify({
+        }));
+    }).catch(function (error) {
+        res.writeHead(403); 
+        res.end(JSON.stringify(error));
+    });
 });
 /*
  * Vote no on a question.
  */
 app.post('/questions/:questionID(\\d+)/no', function(req, res, next) {
     if (req.isAuthenticated()) {
-		var userID = req.session.passport.user;
-		checkPermission(req, res, userID, 1, next, function(req, res) {
-			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
-		});
-	} else {
-		return res.status(403).jsonp({message: NOT_AUTHENTICATED_MESSAGE});
-	};
+        var userID = req.session.passport.user;
+        checkPermission(req, res, userID, 1, next, function(req, res) {
+            return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
+        });
+    } else {
+        return res.status(403).jsonp({message: NOT_AUTHENTICATED_MESSAGE});
+    };
 }, function (req, res) {
-	var userID = req.session.passport.user;
-	var questionID = parseInt(req.params.questionID, 10);
-	db.query('UPDATE question set no=no+1 WHERE id=$1 and user_id!=$2', [questionID,userID], qrm.none).then(function () {
-		res.end(JSON.stringify({
-		}));
-	}).catch(function (error) {
-		res.writeHead(403); 
-		res.end(JSON.stringify(error));
-	});
+    var userID = req.session.passport.user;
+    var questionID = parseInt(req.params.questionID, 10);
+    db.query('UPDATE question set no=no+1 WHERE id=$1 and user_id!=$2', [questionID,userID], qrm.none).then(function () {
+        res.end(JSON.stringify({
+        }));
+    }).catch(function (error) {
+        res.writeHead(403); 
+        res.end(JSON.stringify(error));
+    });
 });
 
 
 
 
 var server = app.listen(process.env.PORT || 3000, function () {
-	var host = server.address().address;
-	var port = server.address().port;
+    var host = server.address().address;
+    var port = server.address().port;
 
-	console.log('QuickyHealth started at http://%s:%s', host, port);
+    console.log('QuickyHealth started at http://%s:%s', host, port);
 });
 
 var io = socket.listen(server);
 io.on('connection', function(socket){
-	console.log('a user connected');
+    console.log('a user connected');
 
-	socket.on('disconnect', function() {
-		console.log('a user left');
-	});
+    socket.on('disconnect', function() {
+        console.log('a user left');
+    });
 });
