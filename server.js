@@ -182,9 +182,6 @@ app.get('/forgetpassword', function (req, res) {
 app.post('/register', function (req, res) {
 	res.redirect('/login');
 });
-
-
-
 /*
  * Get public questions.
  */
@@ -209,8 +206,8 @@ app.get('/questions/:page(\\d+)', function(req, res, next) {
 			});
 		});
 	}).catch(function (error) {
-		console.log(error);
-		res.writeHead(403); res.end(JSON.stringify(error));
+		res.writeHead(403); 
+		res.end(JSON.stringify(error));
 	});
 });
 
