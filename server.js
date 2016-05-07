@@ -287,7 +287,7 @@ app.post('/questions', function(req, res, next) {
 /*
  * Delete a question.
  */
-app.delete('/questions/:questionID(\\d+)', function(req, res, next) {
+app.post('/questions/:questionID(\\d+)/delete', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
 		checkPermission(req, res, userID, 1, next, function(req, res) {
@@ -297,10 +297,15 @@ app.delete('/questions/:questionID(\\d+)', function(req, res, next) {
 		res.redirect('/');
 	};
 }, function (req, res) {
+	var userID = req.session.passport.user;
 	var questionID = parseInt(req.params.questionID, 10);
-	res.end(JSON.stringify({
-		
-	}));
+	db.query('DELETE FROM question WHERE id=$1 and user_id=$2', [questionID,userID], qrm.none).then(function () {
+		res.end(JSON.stringify({
+		}));
+	}).catch(function (error) {
+		res.writeHead(403); 
+		res.end(JSON.stringify(error));
+	});
 });
 
 

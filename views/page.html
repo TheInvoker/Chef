@@ -9,7 +9,7 @@
 		{{#each questions}}
 			<div>
 			{{@index}}. {{#with this}}
-				{{id}} {{question}}
+				id={{id}} {{question}}
 				{{no}} {{yes}} {{date_created}} {{date_modified}}
 		    {{/with}}
 			</div>
@@ -24,6 +24,11 @@
 		<form id="myQuestionForm" action="/questions/mine" method="get">
 			<div>
 				<input type="submit" value="My Questions" />
+			</div>
+		</form>
+		<form id="deleteQuestionForm" action="/questions/3/delete" method="post">
+			<div>
+				<input type="submit" value="Delete" />
 			</div>
 		</form>
 		<form id="logoutForm" action="/logout" method="get">
