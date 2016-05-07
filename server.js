@@ -45,9 +45,9 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(id, done) {	
-	db.query('SELECT * FROM "user" where id=$1', id, qrm.any).then(function (data) {
-		if (data.length == 1) {
-			return done(null, data[0]);
+	db.query('SELECT * FROM "user" where id=$1', id, qrm.one).then(function (data) {
+		if (data) {
+			return done(null, data);
 		}
 		return done(null, false);
 	}).catch(function (error) {
@@ -61,9 +61,9 @@ passport.use(new LocalStrategy({
 	passwordField: 'password',
 	session: true
 }, function(email, password, done) {	
-	db.query('SELECT * FROM "user" where email=$1 and password=$2', [email, password], qrm.any).then(function (data) {
-		if (data.length == 1) {
-			return done(null, data[0]);
+	db.query('SELECT * FROM "user" where email=$1 and password=$2', [email, password], qrm.one).then(function (data) {
+		if (data) {
+			return done(null, data);
 		}
 		return done(null, false);
 	}).catch(function (error) {
@@ -74,11 +74,11 @@ passport.use(new LocalStrategy({
 
 
 function checkPermission(req, res, userID, moduleID, callback, failedCallback) {
-	db.query('SELECT count(mp.*) AS count \
+	db.query('SELECT mp.* AS count \
 	          FROM "modulePermission" mp \
 	          JOIN "user" u ON u.id=$1 \
 			  WHERE mp."moduleID"=$2 and mp."roleID"=u."roleID"', [userID, moduleID], qrm.one).then(function (data) {
-		if (data.count === '1') {
+		if (data) {
 			return callback();
 		}
 		return failedCallback(req, res);
