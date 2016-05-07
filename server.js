@@ -76,12 +76,12 @@ passport.use(new LocalStrategy({
 
 
 
-function checkPermission(req, res, sqlClient, userID, moduleID, callback, failedCallback) {
+function checkPermission(req, res, userID, moduleID, callback, failedCallback) {
 	db.query('SELECT count(mp.*) AS count \
 	          FROM "modulePermission" mp \
 	          JOIN "user" u ON u.id=$1 \
-			  WHERE mp."moduleID"=$2 and mp."roleID"=u."roleID"', [userID, moduleID], qrm.any).then(function (data) {
-		if (data[0].count === '1') {
+			  WHERE mp."moduleID"=$2 and mp."roleID"=u."roleID"', [userID, moduleID], qrm.one).then(function (data) {
+		if (data.count === '1') {
 			return callback();
 		}
 		return failedCallback(req, res);
@@ -201,7 +201,7 @@ app.post('/register', function (req, res) {
 app.get('/questions/mine', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 1, next, function(req, res) {
+		checkPermission(req, res, userID, 1, next, function(req, res) {
 			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
 		});
 	} else {
@@ -231,7 +231,7 @@ app.get('/questions/mine', function(req, res, next) {
 app.get('/questions/:questionID(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 1, next, function(req, res) {
+		checkPermission(req, res, userID, 1, next, function(req, res) {
 			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
 		});
 	} else {
@@ -249,7 +249,7 @@ app.get('/questions/:questionID(\\d+)', function(req, res, next) {
 app.post('/questions/:questionID(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 1, next, function(req, res) {
+		checkPermission(req, res, userID, 1, next, function(req, res) {
 			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
 		});
 	} else {
@@ -267,7 +267,7 @@ app.post('/questions/:questionID(\\d+)', function(req, res, next) {
 app.post('/questions', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 1, next, function(req, res) {
+		checkPermission(req, res, userID, 1, next, function(req, res) {
 			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
 		});
 	} else {
@@ -276,16 +276,14 @@ app.post('/questions', function(req, res, next) {
 }, function (req, res) {
 	var userID = req.session.passport.user;
 	var question = req.body.question;
-	var sql = pg_escape('INSERT INTO question (question,date_created,date_modified,user_id,yes,no) \
-						 VALUES (%L,now(),now(),%L,0,0) RETURNING id', question, userID.toString());
-	var query = client.query(sql);
-	query.on('row', function(row, result) {
-		result.addRow(row);
-	});
-	query.on('end', function(data) {
-		var id = data.rows[0].id;
+	db.query('INSERT INTO question (question,date_created,date_modified,user_id,yes,no) \
+			  VALUES ($1,now(),now(),$2,0,0) RETURNING id', [question, userID], qrm.one).then(function (data) {
 		res.end(JSON.stringify({
-			"id" : id
+			"id" : data.id
+		}));
+	}).catch(function (error) {
+		console.log(error);
+		res.end(JSON.stringify({
 		}));
 	});
 });
@@ -295,7 +293,7 @@ app.post('/questions', function(req, res, next) {
 app.delete('/questions/:questionID(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
-		checkPermission(req, res, client, userID, 1, next, function(req, res) {
+		checkPermission(req, res, userID, 1, next, function(req, res) {
 			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
 		});
 	} else {
