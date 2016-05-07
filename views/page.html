@@ -26,13 +26,14 @@
 		{{/each}}
 		
 		<div class="box">
+			<a href="/questions/0"><<</a>
 			{{#gte prevpage 0}}
-				<a href="/questions/{{prevpage}}">Previous</a>
+				<a href="/questions/{{prevpage}}"><</a>
 			{{/gte}} 
 			{{#empty questions}}
 				
 			{{else}}
-				<a href="/questions/{{nextpage}}">Next</a>
+				<a href="/questions/{{nextpage}}">></a>
 			{{/empty}} 
 			
 			<form id="addQuestionForm" action="/questions" method="post">
