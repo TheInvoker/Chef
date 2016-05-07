@@ -12,11 +12,7 @@ body,input,button {
 	font-family: Open Sans;
 }
 
-div.content {
-	border:1px solid #ddd;
-	background-color:white;
-	margin:1em;
-	padding:1em;
+.content {
 	text-align:center;
 }
 form {
@@ -31,6 +27,22 @@ form input {
 form input[type='submit'] {
 	width:100%;
 }
+
+.box {
+	margin:1em;
+	padding:1em;
+	border:1px solid #ddd;
+	background-color:white;
+}
+.question-item {
+
+}
+
+
 .important {
 	color:red;
+}
+.date {
+	font-size:0.7em;
+	color:gray;
 }

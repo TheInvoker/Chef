@@ -28,6 +28,18 @@ handlebars.registerHelper("formatDate", function(datetime, format) {
 	}
 	return new handlebars.SafeString(str);
 });
+handlebars.registerHelper('gte', function(v1, v2, options) {
+	if(parseInt(v1, 10) >= parseInt(v2, 10)) {
+		return options.fn(this);
+	}
+	return options.inverse(this);
+});
+handlebars.registerHelper('empty', function(v1, options) {
+	if(v1.length == 0) {
+		return options.fn(this);
+	}
+	return options.inverse(this);
+});
 
 var NOT_AUTHENTICATED_MESSAGE = 'Access denied, please log in';
 var PERMISSION_DENIED_MESSAGE = 'You do not have permission';
@@ -211,12 +223,15 @@ app.get('/questions/:page(\\d+)', function(req, res, next) {
         res.redirect('/');
     };
 }, function (req, res) {
-    var page = parseInt(req.params.page, 10) * page_size;
-    db.query('SELECT * FROM question ORDER BY RANDOM() LIMIT $1 OFFSET $2', [page_size, page], qrm.any).then(function (sqldata) {
+	var page = parseInt(req.params.page, 10);
+    var offset = page * page_size;
+    db.query('SELECT * FROM question ORDER BY date_created desc LIMIT $1 OFFSET $2', [page_size, offset], qrm.any).then(function (sqldata) {
         fs.readFile(__dirname + '/views/header.html', function(err, data){
             renderView(__dirname + '/views/page.html', {
                 header : data,
-                questions : sqldata
+                questions : sqldata,
+				nextpage : page + 1,
+				prevpage : page - 1
             }, function(code, str) {
                 res.writeHead(code); res.end(str);
             });
@@ -241,8 +256,9 @@ app.get('/questions/mine/:page(\\d+)', function(req, res, next) {
     };
 }, function (req, res) {
     var userID = req.session.passport.user;
-    var page = parseInt(req.params.page, 10) * page_size;
-    db.query('SELECT * FROM question WHERE user_id=$1 ORDER BY date_created desc LIMIT $2 OFFSET $3', [userID, page_size, page], qrm.any).then(function (sqldata) {        
+	var page = parseInt(req.params.page, 10);
+    var offset = page * page_size;
+    db.query('SELECT * FROM question WHERE user_id=$1 ORDER BY date_created desc LIMIT $2 OFFSET $3', [userID, page_size, offset], qrm.any).then(function (sqldata) {        
         fs.readFile(__dirname + '/views/header.html', function(err, data){
             renderView(__dirname + '/views/page.html', {
                 header : data,

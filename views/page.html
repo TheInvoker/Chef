@@ -7,35 +7,55 @@
 	<body>
  
 		{{#each questions}}
-			<div>
-			{{@index}}. {{#with this}}
-				id={{id}} {{question}}
-				{{no}} {{yes}} {{formatDate date_created "long"}} {{formatDate date_modified "long"}}
+			<div class="question-item box" data-id="{{id}}">
+			{{#with this}}
+				<h4>
+					{{question}}
+				</h4>
+				<div>
+					No: {{no}} Yes: {{yes}}
+				</div>
+				<div class="date">
+					Created: {{formatDate date_created "long"}}
+				</div>
+				<div class="date">
+					Updated: {{formatDate date_modified "long"}}
+				</div>
 		    {{/with}}
 			</div>
 		{{/each}}
 		
-		<form id="addQuestionForm" action="/questions" method="post">
-			<div>
-				<input type="text" name="question" value="where am I?"/>
-				<input type="submit" value="Add" />
-			</div>
-		</form>
-		<form id="myQuestionForm" action="/questions/mine/0" method="get">
-			<div>
-				<input type="submit" value="My Questions" />
-			</div>
-		</form>
-		<form id="deleteQuestionForm" action="/questions/3/delete" method="post">
-			<div>
-				<input type="submit" value="Delete" />
-			</div>
-		</form>
-		<form id="logoutForm" action="/logout" method="get">
-			<div>
-				<input type="submit" value="Logout" />
-			</div>
-		</form>
-		
+		<div class="box">
+			{{#gte prevpage 0}}
+				<a href="/questions/{{prevpage}}">Previous</a>
+			{{/gte}} 
+			{{#empty questions}}
+				
+			{{else}}
+				<a href="/questions/{{nextpage}}">Next</a>
+			{{/empty}} 
+			
+			<form id="addQuestionForm" action="/questions" method="post">
+				<div>
+					<input type="text" name="question" value="where am I?"/>
+					<input type="submit" value="Add" />
+				</div>
+			</form>
+			<form id="myQuestionForm" action="/questions/mine/0" method="get">
+				<div>
+					<input type="submit" value="My Questions" />
+				</div>
+			</form>
+			<form id="deleteQuestionForm" action="/questions/3/delete" method="post">
+				<div>
+					<input type="submit" value="Delete" />
+				</div>
+			</form>
+			<form id="logoutForm" action="/logout" method="get">
+				<div>
+					<input type="submit" value="Logout" />
+				</div>
+			</form>
+		</div>
 	</body>
 </html> 
