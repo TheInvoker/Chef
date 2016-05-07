@@ -128,7 +128,7 @@ app.get('/', function (req, res) {
 			});
 		}).catch(function (error) {
 			console.log(error);
-			return done(null, false);
+			res.writeHead(403); res.end(JSON.stringify(error));
 		});
 	} else {
 		fs.readFile(__dirname + '/views/header.html', function(err, data){
@@ -209,20 +209,18 @@ app.get('/questions/mine', function(req, res, next) {
 	};
 }, function (req, res) {
 	var userID = req.session.passport.user;
-	var sql = pg_escape('SELECT * FROM question WHERE user_id=%L ORDER BY date_created desc LIMIT 20', userID.toString());
-	var query = client.query(sql);
-	query.on('row', function(row, result) {
-		result.addRow(row);
-	});
-	query.on('end', function(sqldata) {
+	db.query('SELECT * FROM question WHERE user_id=$1 ORDER BY date_created desc LIMIT 20', userID, qrm.any).then(function (sqldata) {
 		fs.readFile(__dirname + '/views/header.html', function(err, data){
 			renderView(__dirname + '/views/page.html', {
 				header : data,
-				questions : sqldata.rows
+				questions : sqldata
 			}, function(code, str) {
 				res.writeHead(code); res.end(str);
 			});
 		}); 
+	}).catch(function (error) {
+		res.writeHead(403); 
+		res.end(JSON.stringify(error));
 	});
 });
 /*
@@ -239,7 +237,7 @@ app.get('/questions/:questionID(\\d+)', function(req, res, next) {
 	};
 }, function (req, res) {
 	var questionID = parseInt(req.params.questionID, 10);
-	res.end(JSON.stringify({
+	res.writeHead(403); res.end(JSON.stringify({
 		
 	}));
 });
@@ -257,7 +255,7 @@ app.post('/questions/:questionID(\\d+)', function(req, res, next) {
 	};
 }, function (req, res) {
 	var questionID = parseInt(req.params.questionID, 10);
-	res.end(JSON.stringify({
+	res.writeHead(403); res.end(JSON.stringify({
 		
 	}));
 });
@@ -282,9 +280,8 @@ app.post('/questions', function(req, res, next) {
 			"id" : data.id
 		}));
 	}).catch(function (error) {
-		console.log(error);
-		res.end(JSON.stringify({
-		}));
+		res.writeHead(403); 
+		res.end(JSON.stringify(error));
 	});
 });
 /*
