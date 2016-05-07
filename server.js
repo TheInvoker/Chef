@@ -18,7 +18,7 @@ var handlebars = require('handlebars');
  *     req.body.param
  */
 
-
+ 
 var NOT_AUTHENTICATED_MESSAGE = 'Access denied, please log in';
 var PERMISSION_DENIED_MESSAGE = 'You do not have permission';
 var NO_USER_FOUND_MESSAGE = 'no user found';
@@ -27,7 +27,7 @@ var USER_AUTHENTICATED = 'ok';
 var connectionString = process.env.DATABASE_URL || 'postgres://postgres:root@localhost:5432/piq';
 var db = pgp(connectionString);
 var qrm = pgp.queryResult;
-
+var page_size = 20;
 
 
 app.use(express.static(__dirname + '/public'));
@@ -115,7 +115,7 @@ function renderToString(source, data) {
  */
 app.get('/', function (req, res) {
 	if (req.isAuthenticated()) {
-		res.redirect('/questions');
+		res.redirect('/questions/0');
 	} else {
 		res.redirect('/login');
 	};
@@ -150,7 +150,7 @@ app.post('/login', function(req, res, next) {
 				if (err) {
 					return next(err);
 				}
-				res.redirect('/questions');
+				res.redirect('/questions/0');
 			});
 		}
     })(req, res, next);
@@ -188,7 +188,7 @@ app.post('/register', function (req, res) {
 /*
  * Get public questions.
  */
-app.get('/questions', function(req, res, next) {
+app.get('/questions/:page(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
 		checkPermission(req, res, userID, 1, next, function(req, res) {
@@ -198,7 +198,8 @@ app.get('/questions', function(req, res, next) {
 		res.redirect('/');
 	};
 }, function (req, res) {
-	db.query('SELECT * FROM question ORDER BY RANDOM() LIMIT 20 OFFSET 0', undefined, qrm.any).then(function (sqldata) {
+	var page = parseInt(req.params.page, 10) * page_size;
+	db.query('SELECT * FROM question ORDER BY RANDOM() LIMIT $1 OFFSET $2', [page_size, page], qrm.any).then(function (sqldata) {
 		fs.readFile(__dirname + '/views/header.html', function(err, data){
 			renderView(__dirname + '/views/page.html', {
 				header : data,
@@ -216,7 +217,7 @@ app.get('/questions', function(req, res, next) {
 /*
  * Get my questions.
  */
-app.get('/questions/mine', function(req, res, next) {
+app.get('/questions/mine/:page(\\d+)', function(req, res, next) {
     if (req.isAuthenticated()) {
 		var userID = req.session.passport.user;
 		checkPermission(req, res, userID, 1, next, function(req, res) {
@@ -227,7 +228,8 @@ app.get('/questions/mine', function(req, res, next) {
 	};
 }, function (req, res) {
 	var userID = req.session.passport.user;
-	db.query('SELECT * FROM question WHERE user_id=$1 ORDER BY date_created desc LIMIT 20', userID, qrm.any).then(function (sqldata) {
+	var page = parseInt(req.params.page, 10) * page_size;
+	db.query('SELECT * FROM question WHERE user_id=$1 ORDER BY date_created desc LIMIT $2 OFFSET $3', [userID, page_size, page], qrm.any).then(function (sqldata) {		
 		fs.readFile(__dirname + '/views/header.html', function(err, data){
 			renderView(__dirname + '/views/page.html', {
 				header : data,
