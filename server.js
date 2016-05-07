@@ -1,8 +1,7 @@
 var express = require('express');
 var app = express();
-var qs = require('querystring');
 var pg = require('pg');
-var pg_escape = require('pg-escape');
+var pgp = require('pg-promise')();
 var expressSession = require('express-session');
 var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
@@ -26,8 +25,10 @@ var NO_USER_FOUND_MESSAGE = 'no user found';
 var USER_AUTHENTICATED = 'ok';
 
 var connectionString = process.env.DATABASE_URL || 'postgres://postgres:root@localhost:5432/piq';
-var client = new pg.Client(connectionString);
-client.connect();
+var db = pgp(connectionString);
+var qrm = pgp.queryResult;
+//var client = new pg.Client(connectionString);
+//client.connect();
 
 
 
@@ -45,16 +46,14 @@ passport.serializeUser(function(user, done) {
 	done(null, user.id);
 });
 
-passport.deserializeUser(function(id, done) {
-	var sql = pg_escape('SELECT * FROM "user" where id=%L', id.toString());
-	var query = client.query(sql);
-	query.on('row', function(row, result) {
-		result.addRow(row);
-	});
-	query.on('end', function(data) { 
-		if (data.rows.length == 1) {
-			return done(null, data.rows[0]);
+passport.deserializeUser(function(id, done) {	
+	db.query('SELECT * FROM "user" where id=$1', id, qrm.any).then(function (data) {
+		if (data.length == 1) {
+			return done(null, data[0]);
 		}
+		return done(null, false);
+	}).catch(function (error) {
+		console.log(error);
 		return done(null, false);
 	});
 });
@@ -63,16 +62,14 @@ passport.use(new LocalStrategy({
 	usernameField: 'email',
 	passwordField: 'password',
 	session: true
-}, function(email, password, done) {
-	var sql = pg_escape('SELECT * FROM "user" where email=%L and password=%L', email, password);
-	var query = client.query(sql);
-	query.on('row', function(row, result) {
-		result.addRow(row);
-	});
-	query.on('end', function(data) { 
-		if (data.rows.length == 1) {
-			return done(null, data.rows[0]);
+}, function(email, password, done) {	
+	db.query('SELECT * FROM "user" where email=$1 and password=$2', [email, password], qrm.any).then(function (data) {
+		if (data.length == 1) {
+			return done(null, data[0]);
 		}
+		return done(null, false);
+	}).catch(function (error) {
+		console.log(error);
 		return done(null, false);
 	});
 }));
@@ -80,18 +77,16 @@ passport.use(new LocalStrategy({
 
 
 function checkPermission(req, res, sqlClient, userID, moduleID, callback, failedCallback) {
-	var sql = pg_escape('SELECT count(mp.*) AS count \
-	                     FROM "modulePermission" mp \
-	                     JOIN "user" u ON u.id=%L \
-						 WHERE mp."moduleID"=%L and mp."roleID"=u."roleID"', userID.toString(), moduleID.toString());
-	var query = client.query(sql);
-	query.on('row', function(row, result) {
-		result.addRow(row);
-	});
-	query.on('end', function(data) { 
-		if (data.rows[0].count === '1') {
+	db.query('SELECT count(mp.*) AS count \
+	          FROM "modulePermission" mp \
+	          JOIN "user" u ON u.id=$1 \
+			  WHERE mp."moduleID"=$2 and mp."roleID"=u."roleID"', [userID, moduleID], qrm.any).then(function (data) {
+		if (data[0].count === '1') {
 			return callback();
 		}
+		return failedCallback(req, res);
+	}).catch(function (error) {
+		console.log(error);
 		return failedCallback(req, res);
 	});
 }
@@ -122,20 +117,18 @@ function renderToString(source, data) {
  */
 app.get('/', function (req, res) {
 	if (req.isAuthenticated()) {
-		var sql = pg_escape('SELECT * FROM question ORDER BY RANDOM() LIMIT 20');
-		var query = client.query(sql);
-		query.on('row', function(row, result) {
-			result.addRow(row);
-		});
-		query.on('end', function(sqldata) {
+		db.query('SELECT * FROM question ORDER BY RANDOM() LIMIT 20', undefined, qrm.any).then(function (sqldata) {
 			fs.readFile(__dirname + '/views/header.html', function(err, data){
 				renderView(__dirname + '/views/page.html', {
 					header : data,
-					questions : sqldata.rows
+					questions : sqldata
 				}, function(code, str) {
 					res.writeHead(code); res.end(str);
 				});
-			}); 
+			});
+		}).catch(function (error) {
+			console.log(error);
+			return done(null, false);
 		});
 	} else {
 		fs.readFile(__dirname + '/views/header.html', function(err, data){
