@@ -257,10 +257,16 @@ app.post('/questions/:questionID(\\d+)', function(req, res, next) {
 		res.redirect('/');
 	};
 }, function (req, res) {
+	var userID = req.session.passport.user;
+	var question = req.body.question;
 	var questionID = parseInt(req.params.questionID, 10);
-	res.writeHead(403); res.end(JSON.stringify({
-		
-	}));
+	db.query('UPDATE question set question=$1,date_modified=now() WHERE id=$2 and user_id=$3', [question,questionID,userID], qrm.none).then(function () {
+		res.end(JSON.stringify({
+		}));
+	}).catch(function (error) {
+		res.writeHead(403); 
+		res.end(JSON.stringify(error));
+	});
 });
 /*
  * Create a question.
@@ -310,7 +316,52 @@ app.post('/questions/:questionID(\\d+)/delete', function(req, res, next) {
 		res.end(JSON.stringify(error));
 	});
 });
-
+/*
+ * Vote yes on a question.
+ */
+app.post('/questions/:questionID(\\d+)/yes', function(req, res, next) {
+    if (req.isAuthenticated()) {
+		var userID = req.session.passport.user;
+		checkPermission(req, res, userID, 1, next, function(req, res) {
+			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
+		});
+	} else {
+		res.redirect('/');
+	};
+}, function (req, res) {
+	var userID = req.session.passport.user;
+	var questionID = parseInt(req.params.questionID, 10);
+	db.query('UPDATE question set yes=yes+1 WHERE id=$1 and user_id!=$2', [questionID,userID], qrm.none).then(function () {
+		res.end(JSON.stringify({
+		}));
+	}).catch(function (error) {
+		res.writeHead(403); 
+		res.end(JSON.stringify(error));
+	});
+});
+/*
+ * Vote no on a question.
+ */
+app.post('/questions/:questionID(\\d+)/no', function(req, res, next) {
+    if (req.isAuthenticated()) {
+		var userID = req.session.passport.user;
+		checkPermission(req, res, userID, 1, next, function(req, res) {
+			return res.status(403).jsonp({message: PERMISSION_DENIED_MESSAGE});
+		});
+	} else {
+		res.redirect('/');
+	};
+}, function (req, res) {
+	var userID = req.session.passport.user;
+	var questionID = parseInt(req.params.questionID, 10);
+	db.query('UPDATE question set no=no+1 WHERE id=$1 and user_id!=$2', [questionID,userID], qrm.none).then(function () {
+		res.end(JSON.stringify({
+		}));
+	}).catch(function (error) {
+		res.writeHead(403); 
+		res.end(JSON.stringify(error));
+	});
+});
 
 
 
