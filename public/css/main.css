@@ -51,6 +51,10 @@ form input {
 .question-item[data-mine='true'] {
 	border:1px solid red;
 }
+.question-item:not([data-mine='true']) .delete,
+.question-item:not([data-mine='true']) .edit {
+	display:none;
+}
 
 
 .important {

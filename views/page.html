@@ -38,6 +38,9 @@
 							<div class="date">
 								Updated: {{formatDate date_modified "long"}}
 							</div>
+							<div>
+								<button class="delete">Delete</button> <button class="edit">Edit</button>
+							</div>
 						</div>
 					{{/with}}
 				{{/each}}
@@ -65,11 +68,6 @@
 				{{else}}
 					<a href="/questions/{{nextpage}}">></a>
 				{{/empty}}
-				<form id="deleteQuestionForm" action="/questions/3/delete" method="post">
-					<div>
-						<input type="submit" value="Delete" />
-					</div>
-				</form>
 			</div>
 			
 			<div class="box">
