@@ -27,6 +27,9 @@
 								{{question}}
 							</h4>
 							<div>
+								{{username}}
+							</div>
+							<div>
 								<img class="icon" src="/image/dislike-thumb.svg" data-action="no"> <div class="vote-text">{{no}}</div> <img class="icon" src="/image/thumb-up.svg" data-action="yes"> <div class="vote-text">{{yes}}</div>
 							</div>
 							<div class="date">
@@ -67,6 +70,9 @@
 						<input type="submit" value="Delete" />
 					</div>
 				</form>
+			</div>
+			
+			<div class="box">
 				<form id="logoutForm" action="/logout" method="get">
 					<div>
 						<input type="submit" value="Logout" />

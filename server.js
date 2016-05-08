@@ -225,7 +225,7 @@ app.get('/questions/:page(\\d+)', function(req, res, next) {
 	var userID = req.session.passport.user;
 	var page = parseInt(req.params.page, 10);
     var offset = page * page_size;
-    db.query('SELECT *,user_id=$1 mine FROM question ORDER BY date_created desc LIMIT $2 OFFSET $3', [userID, page_size, offset], qrm.any).then(function (sqldata) {
+    db.query('SELECT q.*,user_id=$1 mine,u.username FROM question q JOIN "user" u ON q.user_id=u.id ORDER BY date_created desc LIMIT $2 OFFSET $3', [userID, page_size, offset], qrm.any).then(function (sqldata) {
         fs.readFile(__dirname + '/views/header.html', function(err, data){
             renderView(__dirname + '/views/page.html', {
                 header : data,
@@ -260,7 +260,7 @@ app.get('/questions/mine/:page(\\d+)', function(req, res, next) {
     var userID = req.session.passport.user;
 	var page = parseInt(req.params.page, 10);
     var offset = page * page_size;
-    db.query('SELECT *,user_id=$1 mine FROM question WHERE user_id=$1 ORDER BY date_created desc LIMIT $2 OFFSET $3', [userID, page_size, offset], qrm.any).then(function (sqldata) {        
+    db.query('SELECT *,user_id=$1 mine,u.username FROM question q JOIN "user" u ON q.user_id=u.id WHERE user_id=$1 ORDER BY date_created desc LIMIT $2 OFFSET $3', [userID, page_size, offset], qrm.any).then(function (sqldata) {        
 		fs.readFile(__dirname + '/views/header.html', function(err, data){
             renderView(__dirname + '/views/page.html', {
                 header : data,
