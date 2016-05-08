@@ -105,7 +105,6 @@ function checkPermission(req, res, userID, moduleID, callback, failedCallback) {
         }
         return failedCallback(req, res);
     }).catch(function (error) {
-        console.log(error);
         return failedCallback(req, res);
     });
 }
@@ -233,7 +232,8 @@ app.get('/questions/:page(\\d+)', function(req, res, next) {
                 questions : sqldata,
 				page : page,
 				nextpage : page + 1,
-				prevpage : page - 1
+				prevpage : page - 1,
+				title : 'All Questions'
             }, function(code, str) {
                 res.writeHead(code); res.end(str);
             });
@@ -264,7 +264,11 @@ app.get('/questions/mine/:page(\\d+)', function(req, res, next) {
 		fs.readFile(__dirname + '/views/header.html', function(err, data){
             renderView(__dirname + '/views/page.html', {
                 header : data,
-                questions : sqldata
+                questions : sqldata,
+				page : page,
+				nextpage : page + 1,
+				prevpage : page - 1,
+				title : 'My Questions'
             }, function(code, str) {
                 res.writeHead(code); res.end(str);
             });

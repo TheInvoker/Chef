@@ -6,24 +6,39 @@
 
 	<body>
 		<div class="page">
-			{{#each questions}}
-				{{#with this}}
-					<div class="question-item box" data-id="{{id}}" data-mine="{{mine}}">
-						<h4>
-							{{question}}
-						</h4>
-						<div>
-							<img class="icon" src="/image/dislike-thumb.svg" data-action="no"> <div class="vote-text">{{no}}</div> <img class="icon" src="/image/thumb-up.svg" data-action="yes"> <div class="vote-text">{{yes}}</div>
+			<div class="box">
+				<h1>
+					{{title}}
+				<h1/>
+			</div>
+			<div class="box">
+				<a href="/questions/0">All Questions</a> | <a href="/questions/mine/0">My Questions</a>
+			</div>
+			
+			{{#empty questions}}
+				<div class="box">
+					No questions to show
+				</div>
+			{{else}}
+				{{#each questions}}
+					{{#with this}}
+						<div class="question-item box" data-id="{{id}}" data-mine="{{mine}}">
+							<h4>
+								{{question}}
+							</h4>
+							<div>
+								<img class="icon" src="/image/dislike-thumb.svg" data-action="no"> <div class="vote-text">{{no}}</div> <img class="icon" src="/image/thumb-up.svg" data-action="yes"> <div class="vote-text">{{yes}}</div>
+							</div>
+							<div class="date">
+								Created: {{formatDate date_created "long"}}
+							</div>
+							<div class="date">
+								Updated: {{formatDate date_modified "long"}}
+							</div>
 						</div>
-						<div class="date">
-							Created: {{formatDate date_created "long"}}
-						</div>
-						<div class="date">
-							Updated: {{formatDate date_modified "long"}}
-						</div>
-					</div>
-				{{/with}}
-			{{/each}}
+					{{/with}}
+				{{/each}}
+			{{/empty}}
 			
 			<div class="box">
 				{{#gte prevpage 0}}
@@ -41,11 +56,6 @@
 					<div>
 						<input type="text" name="question" value="where am I?"/>
 						<input type="submit" value="Add" />
-					</div>
-				</form>
-				<form id="myQuestionForm" action="/questions/mine/0" method="get">
-					<div>
-						<input type="submit" value="My Questions" />
 					</div>
 				</form>
 				<form id="deleteQuestionForm" action="/questions/3/delete" method="post">
