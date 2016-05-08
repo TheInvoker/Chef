@@ -41,6 +41,12 @@ handlebars.registerHelper('eq', function(v1, v2, options) {
     }
     return options.inverse(this);
 });
+handlebars.registerHelper('lseq', function(v1, v2, options) {
+    if(v1.length == parseInt(v2, 10)) {
+        return options.fn(this);
+    }
+    return options.inverse(this);
+});
 handlebars.registerHelper('empty', function(v1, options) {
     if(v1.length == 0) {
         return options.fn(this);
@@ -267,11 +273,11 @@ app.get('/questions/:page(\\d+)', function(req, res, next) {
     var userID = req.session.passport.user;
     var page = parseInt(req.params.page, 10);
     var offset = page * page_size;
-    db.query('SELECT q.*, q.user_id=$1 mine, max(u.username) username, sum(case when v.answer=0 then 1 else 0 end) no_count, sum(case when v.answer=1 then 1 else 0 end) yes_count, max(case when v.user_id=$1 then v.answer else -1 end) my_vote \
+    db.query('SELECT q.*, q.user_id=$1 mine, u.username, sum(case when v.answer=0 then 1 else 0 end) no_count, sum(case when v.answer=1 then 1 else 0 end) yes_count, max(case when v.user_id=$1 then v.answer else -1 end) my_vote \
               FROM question q \
               JOIN "user" u ON q.user_id=u.id \
               LEFT JOIN vote v ON v.question_id=q.id \
-              GROUP BY q.id \
+              GROUP BY q.id, u.username \
               ORDER BY q.date_created desc \
               LIMIT $2\
               OFFSET $3', [userID, page_size, offset], qrm.any).then(function (sqldata) {
@@ -282,6 +288,7 @@ app.get('/questions/:page(\\d+)', function(req, res, next) {
                 page : page,
                 nextpage : page + 1,
                 prevpage : page - 1,
+				page_size : page_size,
                 title : 'All Questions'
             }, function(code, str) {
                 res.writeHead(code); res.end(str);
@@ -309,15 +316,15 @@ app.get('/questions/mine/:page(\\d+)', function(req, res, next) {
     var userID = req.session.passport.user;
     var page = parseInt(req.params.page, 10);
     var offset = page * page_size;
-    db.query('SELECT q.*, q.user_id=$1 mine, max(u.username) username, sum(case when v.answer=0 then 1 else 0 end) no_count, sum(case when v.answer=1 then 1 else 0 end) yes_count, max(case when v.user_id=$1 then v.answer else -1 end) my_vote \
+    db.query('SELECT q.*, q.user_id=$1 mine, u.username, sum(case when v.answer=0 then 1 else 0 end) no_count, sum(case when v.answer=1 then 1 else 0 end) yes_count, max(case when v.user_id=$1 then v.answer else -1 end) my_vote \
               FROM question q \
               JOIN "user" u ON q.user_id=u.id \
               LEFT JOIN vote v ON v.question_id=q.id \
               WHERE q.user_id=$1 \
-			  GROUP BY q.id \
+			  GROUP BY q.id, u.username \
               ORDER BY q.date_created desc \
               LIMIT $2\
-              OFFSET $3', [userID, page_size, offset], qrm.any).then(function (sqldata) {        
+              OFFSET $3', [userID, page_size, offset], qrm.any).then(function (sqldata) {     
         fs.readFile(__dirname + '/views/header.html', function(err, data){
             renderView(__dirname + '/views/page.html', {
                 header : data,
@@ -325,6 +332,7 @@ app.get('/questions/mine/:page(\\d+)', function(req, res, next) {
                 page : page,
                 nextpage : page + 1,
                 prevpage : page - 1,
+				page_size : page_size,
                 title : 'My Questions'
             }, function(code, str) {
                 res.writeHead(code); res.end(str);
@@ -350,16 +358,25 @@ app.get('/question/:questionID(\\d+)', function(req, res, next) {
 }, function (req, res) {
     var userID = req.session.passport.user;
 	var questionID = parseInt(req.params.questionID, 10);
-    db.query('SELECT q.*, q.user_id=$1 mine, max(u.username) username, sum(case when v.answer=0 then 1 else 0 end) no_count, sum(case when v.answer=1 then 1 else 0 end) yes_count, max(case when v.user_id=$1 then v.answer else -1 end) my_vote \
+    db.query('SELECT q.*, q.user_id=$1 mine, u.username, sum(case when v.answer=0 then 1 else 0 end) no_count, sum(case when v.answer=1 then 1 else 0 end) yes_count, max(case when v.user_id=$1 then v.answer else -1 end) my_vote \
               FROM question q \
               JOIN "user" u ON q.user_id=u.id \
               LEFT JOIN vote v ON v.question_id=q.id \
               WHERE q.id=$2 \
-			  GROUP BY q.id \
-              ORDER BY q.date_created desc', [userID,questionID], qrm.one).then(function (data) {
-        res.end(JSON.stringify({
-            "question" : data
-        }));
+			  GROUP BY q.id, u.username \
+              ORDER BY q.date_created desc', [userID,questionID], qrm.one).then(function (sqldata) {
+	    fs.readFile(__dirname + '/views/header.html', function(err, data){
+            renderView(__dirname + '/views/page.html', {
+                header : data,
+                questions : [sqldata],
+                page : 0,
+                nextpage : 1,
+                prevpage : -1,
+				page_size : page_size
+            }, function(code, str) {
+                res.writeHead(code); res.end(str);
+            });
+        }); 
     }).catch(function (error) {
         res.writeHead(403); 
         res.end(JSON.stringify(error));

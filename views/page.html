@@ -6,11 +6,14 @@
 
 	<body>
 		<div class="page">
-			<div class="box">
-				<h1>
-					{{title}}
-				<h1/>
-			</div>
+			{{#if title}}
+				<div class="box">
+					<h1>
+						{{title}}
+					<h1/>
+				</div>
+			{{/if}}
+			
 			<div class="box">
 				<a href="/questions/0">All Questions</a> | <a href="/questions/mine/0">My Questions</a>
 			</div>
@@ -41,6 +44,9 @@
 							<div>
 								<button class="delete">Delete</button> <button class="edit">Edit</button>
 							</div>
+							<div>
+								<a href="/question/{{id}}">Link</a>
+							</div>
 						</div>
 					{{/with}}
 				{{/each}}
@@ -66,7 +72,9 @@
 				{{#empty questions}}
 					
 				{{else}}
-					<a href="/questions/{{nextpage}}">></a>
+					{{#lseq questions page_size}}
+						<a href="/questions/{{nextpage}}">></a>
+					{{/lseq}}
 				{{/empty}}
 			</div>
 			
