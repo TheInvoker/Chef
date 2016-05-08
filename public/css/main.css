@@ -35,8 +35,7 @@ form input[type='submit'] {
 .icon {
 	width:2em;
 	height:2em;
-    -webkit-filter: hue-rotate(220deg) saturate(5);
-    filter: hue-rotate(220deg) saturate(5);
+    cursor:pointer;
 }
 .vote-text {
 	font-size:2em;
@@ -49,8 +48,8 @@ form input[type='submit'] {
 	border:1px solid #ddd;
 	background-color:white;
 }
-.question-item {
-
+.question-item[data-mine='true'] {
+	border:1px solid red;
 }
 
 

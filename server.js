@@ -223,9 +223,10 @@ app.get('/questions/:page(\\d+)', function(req, res, next) {
         res.redirect('/');
     };
 }, function (req, res) {
+	var userID = req.session.passport.user;
 	var page = parseInt(req.params.page, 10);
     var offset = page * page_size;
-    db.query('SELECT * FROM question ORDER BY date_created desc LIMIT $1 OFFSET $2', [page_size, offset], qrm.any).then(function (sqldata) {
+    db.query('SELECT *,user_id=$1 mine FROM question ORDER BY date_created desc LIMIT $2 OFFSET $3', [userID, page_size, offset], qrm.any).then(function (sqldata) {
         fs.readFile(__dirname + '/views/header.html', function(err, data){
             renderView(__dirname + '/views/page.html', {
                 header : data,
@@ -259,8 +260,8 @@ app.get('/questions/mine/:page(\\d+)', function(req, res, next) {
     var userID = req.session.passport.user;
 	var page = parseInt(req.params.page, 10);
     var offset = page * page_size;
-    db.query('SELECT * FROM question WHERE user_id=$1 ORDER BY date_created desc LIMIT $2 OFFSET $3', [userID, page_size, offset], qrm.any).then(function (sqldata) {        
-        fs.readFile(__dirname + '/views/header.html', function(err, data){
+    db.query('SELECT *,user_id=$1 mine FROM question WHERE user_id=$1 ORDER BY date_created desc LIMIT $2 OFFSET $3', [userID, page_size, offset], qrm.any).then(function (sqldata) {        
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
             renderView(__dirname + '/views/page.html', {
                 header : data,
                 questions : sqldata

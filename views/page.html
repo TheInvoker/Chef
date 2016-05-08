@@ -7,22 +7,22 @@
 	<body>
 		<div class="page">
 			{{#each questions}}
-				<div class="question-item box" data-id="{{id}}">
 				{{#with this}}
-					<h4>
-						{{question}}
-					</h4>
-					<div>
-						<img class="icon" src="/image/dislike-thumb.svg"> <div class="vote-text">{{no}}</div> <img class="icon" src="/image/thumb-up.svg"> <div class="vote-text">{{yes}}</div>
-					</div>
-					<div class="date">
-						Created: {{formatDate date_created "long"}}
-					</div>
-					<div class="date">
-						Updated: {{formatDate date_modified "long"}}
+					<div class="question-item box" data-id="{{id}}" data-mine="{{mine}}">
+						<h4>
+							{{question}}
+						</h4>
+						<div>
+							<img class="icon" src="/image/dislike-thumb.svg" data-action="no"> <div class="vote-text">{{no}}</div> <img class="icon" src="/image/thumb-up.svg" data-action="yes"> <div class="vote-text">{{yes}}</div>
+						</div>
+						<div class="date">
+							Created: {{formatDate date_created "long"}}
+						</div>
+						<div class="date">
+							Updated: {{formatDate date_modified "long"}}
+						</div>
 					</div>
 				{{/with}}
-				</div>
 			{{/each}}
 			
 			<div class="box">
