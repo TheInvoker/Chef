@@ -30,7 +30,7 @@
 								{{username}}
 							</div>
 							<div>
-								<img class="icon" src="/image/dislike-thumb.svg" data-action="no"> <div class="vote-text">{{no}}</div> <img class="icon" src="/image/thumb-up.svg" data-action="yes"> <div class="vote-text">{{yes}}</div>
+								<img class="icon{{#eq my_vote 0}} selected{{/eq}}" src="/image/dislike-thumb.svg" data-action="no"> <div class="vote-text">{{no_count}}</div> <img class="icon{{#eq my_vote 1}} selected{{/eq}}" src="/image/thumb-up.svg" data-action="yes"> <div class="vote-text">{{yes_count}}</div>
 							</div>
 							<div class="date">
 								Created: {{formatDate date_created "long"}}
