@@ -9,11 +9,16 @@ $(document).ready(function() {
 			data : {
 				'question' : question
 			},
+			beforeSend:function() {
+				$.blockUI();
+			},
 			success: function(data) {
 				window.location.href = window.location.href;
 			},
 			error: function(request, status, error) {
 				alert(2);
+			},
+			complete:function() {
 			}
 		});
 		return false;
@@ -31,6 +36,9 @@ $(document).ready(function() {
 				url : '/questions/' + questionID + '/' + type,
 				type : 'POST',
 				data : {
+				},
+				beforeSend:function() {
+					$.blockUI();
 				},
 				success: function(data) {
 					window.location.href = window.location.href;
@@ -53,6 +61,9 @@ $(document).ready(function() {
 				url : '/questions/' + questionID + '/delete',
 				type : 'POST',
 				data : {
+				},
+				beforeSend:function() {
+					$.blockUI();
 				},
 				success: function(data) {
 					window.location.href = window.location.href;
@@ -78,6 +89,9 @@ $(document).ready(function() {
 					type : 'POST',
 					data : {
 						'question' : question
+					},
+					beforeSend:function() {
+						$.blockUI();
 					},
 					success: function(data) {
 						window.location.href = window.location.href;
