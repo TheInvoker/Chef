@@ -11,6 +11,7 @@ var socket = require('socket.io');
 var fs = require('fs');
 var handlebars = require('handlebars');
 var dateFormat = require('dateformat');
+var validator = require('validator');
 
 /*   NOTE:
  *   get a GET parameter
@@ -215,19 +216,34 @@ app.get('/register', function (req, res) {
 app.post('/register', function(req, res, next) {
     next();
 }, function (req, res) {
-    var email = req.body.email;
-    var username = req.body.username;
-    var password = req.body.password;
-    var password2 = req.body.password2;
-    db.query('INSERT INTO "user" (email, password, "roleID", username) VALUES ($1, $2, 1, $3) RETURNING id', [email,password,username], qrm.one).then(function (data) {
-        res.redirect('/login');
-    }).catch(function (error) {
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
-			renderView(__dirname + '/views/register.html', {header:data,message:error}, function(code, str) {
-				res.writeHead(code); res.end(str);
-			});
+    var email = req.body.email.trim();
+    var username = req.body.username.trim();
+    var password = req.body.password.trim();
+    var password2 = req.body.password2.trim();
+	
+	if (!validator.isEmail(email)) {
+		return res.status(403).jsonp({
+			'detail' : 'Email invalid'
 		});
-    });
+	} else if (username == "") {
+		return res.status(403).jsonp({
+			'detail' : 'Username invalid'
+		});
+	} else if (password == "") {
+		return res.status(403).jsonp({
+			'detail' : 'Password is invalid'
+		});
+	} else if (password != password2) {
+		return res.status(403).jsonp({
+			'detail' : 'Passwords don\'t match'
+		});
+	} else {	
+		db.query('INSERT INTO "user" (email, password, "roleID", username) VALUES ($1, $2, 1, $3) RETURNING id', [email,password,username], qrm.one).then(function (data) {
+			res.end(JSON.stringify({}));
+		}).catch(function (error) {
+			return res.status(403).jsonp(error);
+		});
+	}
 });
 /*
  * Get public questions.

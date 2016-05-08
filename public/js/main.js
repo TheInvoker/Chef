@@ -1,5 +1,33 @@
 $(document).ready(function() {
-	
+	$("#registerForm").submit(function() {
+		var email = $(this).find("input[name='email']").val();
+		var username = $(this).find("input[name='username']").val();
+		var password = $(this).find("input[name='password']").val();
+		var password2 = $(this).find("input[name='password2']").val();
+		$.getJSON({
+			url : '/register',
+			type : 'POST',
+			data : {
+				'email' : email,
+				'username' : username,
+				'password' : password,
+				'password2' : password2
+			},
+			beforeSend:function() {
+				$.blockUI();
+			},
+			success: function(data) {
+				window.location.href = '/';
+			},
+			error: function(request, status, error) {
+				alert(request.responseJSON.detail);
+			},
+			complete:function() {
+				$.unblockUI();
+			}
+		});
+		return false;
+	});
 
 	$("#addQuestionForm").submit(function() {
 		var question = $(this).find("input[name='question']").val();
@@ -19,6 +47,7 @@ $(document).ready(function() {
 				alert(2);
 			},
 			complete:function() {
+				$.unblockUI();
 			}
 		});
 		return false;
@@ -45,6 +74,9 @@ $(document).ready(function() {
 				},
 				error: function(request, status, error) {
 					alert(2);
+				},
+				complete:function() {
+					$.unblockUI();
 				}
 			});
 		}
@@ -70,6 +102,9 @@ $(document).ready(function() {
 				},
 				error: function(request, status, error) {
 					alert(2);
+				},
+				complete:function() {
+					$.unblockUI();
 				}
 			});
 		}
@@ -98,6 +133,9 @@ $(document).ready(function() {
 					},
 					error: function(request, status, error) {
 						alert(2);
+					},
+					complete:function() {
+						$.unblockUI();
 					}
 				});
 			}
