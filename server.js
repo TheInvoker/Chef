@@ -210,6 +210,26 @@ app.get('/register', function (req, res) {
 	});
 });
 /*
+ * User registration.
+ */
+app.post('/register', function(req, res, next) {
+    next();
+}, function (req, res) {
+    var email = req.body.email;
+    var username = req.body.username;
+    var password = req.body.password;
+    var password2 = req.body.password2;
+    db.query('INSERT INTO "user" (email, password, "roleID", username) VALUES ($1, $2, 1, $3) RETURNING id', [email,password,username], qrm.one).then(function (data) {
+        res.redirect('/login');
+    }).catch(function (error) {
+		fs.readFile(__dirname + '/views/header.html', function(err, data){
+			renderView(__dirname + '/views/register.html', {header:data,message:error}, function(code, str) {
+				res.writeHead(code); res.end(str);
+			});
+		});
+    });
+});
+/*
  * Get public questions.
  */
 app.get('/questions/:page(\\d+)', function(req, res, next) {
