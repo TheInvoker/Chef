@@ -41,6 +41,17 @@
 			{{/empty}}
 			
 			<div class="box">
+				<h3>
+					Add a question
+				</h3>
+				<form id="addQuestionForm" action="/questions" method="post">
+					<div>
+						<input type="text" name="question"/><input type="submit" value="Post" />
+					</div>
+				</form>
+			</div>
+			
+			<div class="box">
 				{{#gte prevpage 0}}
 					<a href="/questions/0"><<</a>
 					<a href="/questions/{{prevpage}}"><</a>
@@ -51,13 +62,6 @@
 				{{else}}
 					<a href="/questions/{{nextpage}}">></a>
 				{{/empty}}
-				
-				<form id="addQuestionForm" action="/questions" method="post">
-					<div>
-						<input type="text" name="question" value="where am I?"/>
-						<input type="submit" value="Add" />
-					</div>
-				</form>
 				<form id="deleteQuestionForm" action="/questions/3/delete" method="post">
 					<div>
 						<input type="submit" value="Delete" />

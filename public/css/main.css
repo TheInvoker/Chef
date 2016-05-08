@@ -28,7 +28,7 @@ form > table {
 form input {
 	box-sizing: border-box;
 }
-form input[type='submit'] {
+#loginForm input[type='submit'] {
 	width:100%;
 }
 

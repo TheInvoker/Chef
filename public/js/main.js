@@ -1,28 +1,24 @@
 $(document).ready(function() {
 	
-	/*
-	$("#loginForm").submit(function() {
-		var email = $(this).find("input[name='email']").val(),
-			password = $(this).find("input[name='password']").val();
+
+	$("#addQuestionForm").submit(function() {
+		var question = $(this).find("input[name='question']").val();
 		$.getJSON({
-			url : '/login',
+			url : '/questions',
 			type : 'POST',
 			data : {
-				'email' : email,
-				'password' : password
+				'question' : question
 			},
 			success: function(data) {
-				if (data.message == 'ok') {
-					window.location
-				}
+				window.location.href = window.location.href;
 			},
 			error: function(request, status, error) {
-				$('#info').html('<p>An error has occurred</p>');
+				alert(2);
 			}
 		});
 		return false;
 	});
-	*/
+
 	
 	$('.question-item').on('click','.icon',function(event) {
 		var mine = $(this).closest('.question-item').attr('data-mine')==='true';
