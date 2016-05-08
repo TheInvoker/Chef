@@ -21,25 +21,25 @@ var validator = require('validator');
  */
 
 handlebars.registerHelper("formatDate", function(datetime, format) {
-	var date = new Date(Date.parse(datetime));
-	if (format == "long") {
-		var str = dateFormat(date, "mmmm dS, yyyy, h:MM:ss TT");
-	} else {
-		var str = date.toString();
-	}
-	return new handlebars.SafeString(str);
+    var date = new Date(Date.parse(datetime));
+    if (format == "long") {
+        var str = dateFormat(date, "mmmm dS, yyyy, h:MM:ss TT");
+    } else {
+        var str = date.toString();
+    }
+    return new handlebars.SafeString(str);
 });
 handlebars.registerHelper('gte', function(v1, v2, options) {
-	if(parseInt(v1, 10) >= parseInt(v2, 10)) {
-		return options.fn(this);
-	}
-	return options.inverse(this);
+    if(parseInt(v1, 10) >= parseInt(v2, 10)) {
+        return options.fn(this);
+    }
+    return options.inverse(this);
 });
 handlebars.registerHelper('empty', function(v1, options) {
-	if(v1.length == 0) {
-		return options.fn(this);
-	}
-	return options.inverse(this);
+    if(v1.length == 0) {
+        return options.fn(this);
+    }
+    return options.inverse(this);
 });
 
 var NOT_AUTHENTICATED_MESSAGE = 'Access denied, please log in';
@@ -194,21 +194,21 @@ app.get('/logout', function(req, res, next) {
  * Forgot password.
  */
 app.get('/forgetpassword', function (req, res) {
-	fs.readFile(__dirname + '/views/header.html', function(err, data){
-		renderView(__dirname + '/views/forgotpassword.html', {header:data}, function(code, str) {
-			res.writeHead(code); res.end(str);
-		});
-	});
+    fs.readFile(__dirname + '/views/header.html', function(err, data){
+        renderView(__dirname + '/views/forgotpassword.html', {header:data}, function(code, str) {
+            res.writeHead(code); res.end(str);
+        });
+    });
 });
 /*
  * User registration.
  */
 app.get('/register', function (req, res) {
-	fs.readFile(__dirname + '/views/header.html', function(err, data){
-		renderView(__dirname + '/views/register.html', {header:data}, function(code, str) {
-			res.writeHead(code); res.end(str);
-		});
-	});
+    fs.readFile(__dirname + '/views/header.html', function(err, data){
+        renderView(__dirname + '/views/register.html', {header:data}, function(code, str) {
+            res.writeHead(code); res.end(str);
+        });
+    });
 });
 /*
  * User registration.
@@ -220,30 +220,30 @@ app.post('/register', function(req, res, next) {
     var username = req.body.username.trim();
     var password = req.body.password.trim();
     var password2 = req.body.password2.trim();
-	
-	if (!validator.isEmail(email)) {
-		return res.status(403).jsonp({
-			'detail' : 'Email invalid'
-		});
-	} else if (username == "") {
-		return res.status(403).jsonp({
-			'detail' : 'Username invalid'
-		});
-	} else if (password == "") {
-		return res.status(403).jsonp({
-			'detail' : 'Password is invalid'
-		});
-	} else if (password != password2) {
-		return res.status(403).jsonp({
-			'detail' : 'Passwords don\'t match'
-		});
-	} else {	
-		db.query('INSERT INTO "user" (email, password, "roleID", username) VALUES ($1, $2, 1, $3) RETURNING id', [email,password,username], qrm.one).then(function (data) {
-			res.end(JSON.stringify({}));
-		}).catch(function (error) {
-			return res.status(403).jsonp(error);
-		});
-	}
+    
+    if (!validator.isEmail(email)) {
+        return res.status(403).jsonp({
+            'detail' : 'Email invalid'
+        });
+    } else if (username == "") {
+        return res.status(403).jsonp({
+            'detail' : 'Username invalid'
+        });
+    } else if (password == "") {
+        return res.status(403).jsonp({
+            'detail' : 'Password is invalid'
+        });
+    } else if (password != password2) {
+        return res.status(403).jsonp({
+            'detail' : 'Passwords don\'t match'
+        });
+    } else {    
+        db.query('INSERT INTO "user" (email, password, "roleID", username) VALUES ($1, $2, 1, $3) RETURNING id', [email,password,username], qrm.one).then(function (data) {
+            res.end(JSON.stringify({}));
+        }).catch(function (error) {
+            return res.status(403).jsonp(error);
+        });
+    }
 });
 /*
  * Get public questions.
@@ -258,18 +258,18 @@ app.get('/questions/:page(\\d+)', function(req, res, next) {
         res.redirect('/');
     };
 }, function (req, res) {
-	var userID = req.session.passport.user;
-	var page = parseInt(req.params.page, 10);
+    var userID = req.session.passport.user;
+    var page = parseInt(req.params.page, 10);
     var offset = page * page_size;
     db.query('SELECT q.*,user_id=$1 mine,u.username FROM question q JOIN "user" u ON q.user_id=u.id ORDER BY date_created desc LIMIT $2 OFFSET $3', [userID, page_size, offset], qrm.any).then(function (sqldata) {
         fs.readFile(__dirname + '/views/header.html', function(err, data){
             renderView(__dirname + '/views/page.html', {
                 header : data,
                 questions : sqldata,
-				page : page,
-				nextpage : page + 1,
-				prevpage : page - 1,
-				title : 'All Questions'
+                page : page,
+                nextpage : page + 1,
+                prevpage : page - 1,
+                title : 'All Questions'
             }, function(code, str) {
                 res.writeHead(code); res.end(str);
             });
@@ -294,17 +294,17 @@ app.get('/questions/mine/:page(\\d+)', function(req, res, next) {
     };
 }, function (req, res) {
     var userID = req.session.passport.user;
-	var page = parseInt(req.params.page, 10);
+    var page = parseInt(req.params.page, 10);
     var offset = page * page_size;
     db.query('SELECT *,user_id=$1 mine,u.username FROM question q JOIN "user" u ON q.user_id=u.id WHERE user_id=$1 ORDER BY date_created desc LIMIT $2 OFFSET $3', [userID, page_size, offset], qrm.any).then(function (sqldata) {        
-		fs.readFile(__dirname + '/views/header.html', function(err, data){
+        fs.readFile(__dirname + '/views/header.html', function(err, data){
             renderView(__dirname + '/views/page.html', {
                 header : data,
                 questions : sqldata,
-				page : page,
-				nextpage : page + 1,
-				prevpage : page - 1,
-				title : 'My Questions'
+                page : page,
+                nextpage : page + 1,
+                prevpage : page - 1,
+                title : 'My Questions'
             }, function(code, str) {
                 res.writeHead(code); res.end(str);
             });
