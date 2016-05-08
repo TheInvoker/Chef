@@ -5,58 +5,60 @@
 	</head>
 
 	<body>
- 
-		{{#each questions}}
-			<div class="question-item box" data-id="{{id}}">
-			{{#with this}}
-				<h4>
-					{{question}}
-				</h4>
-				<div>
-					No: {{no}} Yes: {{yes}}
+		<div class="page">
+			{{#each questions}}
+				<div class="question-item box" data-id="{{id}}">
+				{{#with this}}
+					<h4>
+						{{question}}
+					</h4>
+					<div>
+						<img class="icon" src="/image/dislike-thumb.svg"> <div class="vote-text">{{no}}</div> <img class="icon" src="/image/thumb-up.svg"> <div class="vote-text">{{yes}}</div>
+					</div>
+					<div class="date">
+						Created: {{formatDate date_created "long"}}
+					</div>
+					<div class="date">
+						Updated: {{formatDate date_modified "long"}}
+					</div>
+				{{/with}}
 				</div>
-				<div class="date">
-					Created: {{formatDate date_created "long"}}
-				</div>
-				<div class="date">
-					Updated: {{formatDate date_modified "long"}}
-				</div>
-		    {{/with}}
-			</div>
-		{{/each}}
-		
-		<div class="box">
-			<a href="/questions/0"><<</a>
-			{{#gte prevpage 0}}
-				<a href="/questions/{{prevpage}}"><</a>
-			{{/gte}} 
-			{{#empty questions}}
-				
-			{{else}}
-				<a href="/questions/{{nextpage}}">></a>
-			{{/empty}} 
+			{{/each}}
 			
-			<form id="addQuestionForm" action="/questions" method="post">
-				<div>
-					<input type="text" name="question" value="where am I?"/>
-					<input type="submit" value="Add" />
-				</div>
-			</form>
-			<form id="myQuestionForm" action="/questions/mine/0" method="get">
-				<div>
-					<input type="submit" value="My Questions" />
-				</div>
-			</form>
-			<form id="deleteQuestionForm" action="/questions/3/delete" method="post">
-				<div>
-					<input type="submit" value="Delete" />
-				</div>
-			</form>
-			<form id="logoutForm" action="/logout" method="get">
-				<div>
-					<input type="submit" value="Logout" />
-				</div>
-			</form>
+			<div class="box">
+				{{#gte prevpage 0}}
+					<a href="/questions/0"><<</a>
+					<a href="/questions/{{prevpage}}"><</a>
+				{{/gte}} 
+				{{page}}
+				{{#empty questions}}
+					
+				{{else}}
+					<a href="/questions/{{nextpage}}">></a>
+				{{/empty}}
+				
+				<form id="addQuestionForm" action="/questions" method="post">
+					<div>
+						<input type="text" name="question" value="where am I?"/>
+						<input type="submit" value="Add" />
+					</div>
+				</form>
+				<form id="myQuestionForm" action="/questions/mine/0" method="get">
+					<div>
+						<input type="submit" value="My Questions" />
+					</div>
+				</form>
+				<form id="deleteQuestionForm" action="/questions/3/delete" method="post">
+					<div>
+						<input type="submit" value="Delete" />
+					</div>
+				</form>
+				<form id="logoutForm" action="/logout" method="get">
+					<div>
+						<input type="submit" value="Logout" />
+					</div>
+				</form>
+			</div>
 		</div>
 	</body>
 </html> 

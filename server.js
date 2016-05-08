@@ -230,6 +230,7 @@ app.get('/questions/:page(\\d+)', function(req, res, next) {
             renderView(__dirname + '/views/page.html', {
                 header : data,
                 questions : sqldata,
+				page : page,
 				nextpage : page + 1,
 				prevpage : page - 1
             }, function(code, str) {

@@ -8,6 +8,10 @@ body {
 	overflow-y: hidden;
 	background-color:#d2d2d2;
 }
+.page {
+	overflow-y: auto;
+	height:100%;
+}
 body,input,button {
 	font-family: Open Sans;
 }
@@ -26,6 +30,17 @@ form input {
 }
 form input[type='submit'] {
 	width:100%;
+}
+
+.icon {
+	width:2em;
+	height:2em;
+    -webkit-filter: hue-rotate(220deg) saturate(5);
+    filter: hue-rotate(220deg) saturate(5);
+}
+.vote-text {
+	font-size:2em;
+	display:inline-block;
 }
 
 .box {
