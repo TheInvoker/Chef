@@ -20,6 +20,7 @@ var validator = require('validator');
  *     req.body.param
  */
 
+// converts a date string into another format of date string
 handlebars.registerHelper("formatDate", function(datetime, format) {
     var date = new Date(Date.parse(datetime));
     if (format == "long") {
@@ -29,24 +30,28 @@ handlebars.registerHelper("formatDate", function(datetime, format) {
     }
     return new handlebars.SafeString(str);
 });
+// >= operator for two numbers
 handlebars.registerHelper('gte', function(v1, v2, options) {
     if(parseInt(v1, 10) >= parseInt(v2, 10)) {
         return options.fn(this);
     }
     return options.inverse(this);
 });
+// equals operator for two numbers
 handlebars.registerHelper('eq', function(v1, v2, options) {
     if(parseInt(v1, 10) == parseInt(v2, 10)) {
         return options.fn(this);
     }
     return options.inverse(this);
 });
+// checks if the list size equals a certain number
 handlebars.registerHelper('lseq', function(v1, v2, options) {
     if(v1.length == parseInt(v2, 10)) {
         return options.fn(this);
     }
     return options.inverse(this);
 });
+// checks if the list is empty
 handlebars.registerHelper('empty', function(v1, options) {
     if(v1.length == 0) {
         return options.fn(this);
@@ -54,17 +59,21 @@ handlebars.registerHelper('empty', function(v1, options) {
     return options.inverse(this);
 });
 
+// define some messages
 var NOT_AUTHENTICATED_MESSAGE = 'Access denied, please log in';
 var PERMISSION_DENIED_MESSAGE = 'You do not have permission';
 var NO_USER_FOUND_MESSAGE = 'no user found';
 var USER_AUTHENTICATED = 'ok';
 
+// connect to postgres sql
 var connectionString = process.env.DATABASE_URL || 'postgres://postgres:root@localhost:5432/piq';
 var db = pgp(connectionString);
+
+// define some sql variables
 var qrm = pgp.queryResult;
 var page_size = 20;
 
-
+// put in all the middlewares
 app.use(express.static(__dirname + '/public'));
 app.use(cookieParser());
 app.use(bodyParser.json());
@@ -74,11 +83,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
-
+// serialize/deserialize data to persist user session data
 passport.serializeUser(function(user, done) {
     done(null, user.id);
 });
-
 passport.deserializeUser(function(id, done) {    
     db.query('SELECT * FROM "user" where id=$1', id, qrm.one).then(function (data) {
         if (data) {
@@ -91,6 +99,7 @@ passport.deserializeUser(function(id, done) {
     });
 });
 
+// set up token based cookie authentication
 passport.use(new LocalStrategy({
     usernameField: 'email',
     passwordField: 'password',
@@ -107,7 +116,7 @@ passport.use(new LocalStrategy({
     });
 }));
 
-
+// set up permission checking based on roles
 function checkPermission(req, res, userID, moduleID, callback, failedCallback) {
     db.query('SELECT mp.* AS count \
               FROM "modulePermission" mp \
@@ -122,7 +131,7 @@ function checkPermission(req, res, userID, moduleID, callback, failedCallback) {
     });
 }
 
-
+// set up view rendering using handlebars
 function renderView(sourceFile, jsonObj, callback) {
     fs.readFile(sourceFile, function(err, data){
         if (!err) {
@@ -136,7 +145,6 @@ function renderView(sourceFile, jsonObj, callback) {
         }
     });
 }
-
 function renderToString(source, data) {
     var template = handlebars.compile(source);
     var outputString = template(data);
