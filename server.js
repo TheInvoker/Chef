@@ -296,7 +296,7 @@ app.get('/questions/:page(\\d+)', function(req, res, next) {
                 page : page,
                 nextpage : page + 1,
                 prevpage : page - 1,
-				page_size : page_size,
+                page_size : page_size,
                 title : 'All Questions'
             }, function(code, str) {
                 res.writeHead(code); res.end(str);
@@ -329,7 +329,7 @@ app.get('/questions/mine/:page(\\d+)', function(req, res, next) {
               JOIN "user" u ON q.user_id=u.id \
               LEFT JOIN vote v ON v.question_id=q.id \
               WHERE q.user_id=$1 \
-			  GROUP BY q.id, u.username \
+              GROUP BY q.id, u.username \
               ORDER BY q.date_created desc \
               LIMIT $2\
               OFFSET $3', [userID, page_size, offset], qrm.any).then(function (sqldata) {     
@@ -340,7 +340,7 @@ app.get('/questions/mine/:page(\\d+)', function(req, res, next) {
                 page : page,
                 nextpage : page + 1,
                 prevpage : page - 1,
-				page_size : page_size,
+                page_size : page_size,
                 title : 'My Questions'
             }, function(code, str) {
                 res.writeHead(code); res.end(str);
@@ -365,22 +365,22 @@ app.get('/question/:questionID(\\d+)', function(req, res, next) {
     };
 }, function (req, res) {
     var userID = req.session.passport.user;
-	var questionID = parseInt(req.params.questionID, 10);
+    var questionID = parseInt(req.params.questionID, 10);
     db.query('SELECT q.*, q.user_id=$1 mine, u.username, sum(case when v.answer=0 then 1 else 0 end) no_count, sum(case when v.answer=1 then 1 else 0 end) yes_count, max(case when v.user_id=$1 then v.answer else -1 end) my_vote \
               FROM question q \
               JOIN "user" u ON q.user_id=u.id \
               LEFT JOIN vote v ON v.question_id=q.id \
               WHERE q.id=$2 \
-			  GROUP BY q.id, u.username \
+              GROUP BY q.id, u.username \
               ORDER BY q.date_created desc', [userID,questionID], qrm.one).then(function (sqldata) {
-	    fs.readFile(__dirname + '/views/header.html', function(err, data){
+        fs.readFile(__dirname + '/views/header.html', function(err, data){
             renderView(__dirname + '/views/page.html', {
                 header : data,
                 questions : [sqldata],
                 page : 0,
                 nextpage : 1,
                 prevpage : -1,
-				page_size : page_size
+                page_size : page_size
             }, function(code, str) {
                 res.writeHead(code); res.end(str);
             });
@@ -455,12 +455,12 @@ app.post('/questions/:questionID(\\d+)/delete', function(req, res, next) {
     var userID = req.session.passport.user;
     var questionID = parseInt(req.params.questionID, 10);
     db.query('DELETE FROM question WHERE id=$1 and user_id=$2', [questionID,userID], qrm.none).then(function () {
-		db.query('DELETE FROM vote WHERE question_id=$1', questionID, qrm.none).then(function () {
-			res.end(JSON.stringify({}));
-		}).catch(function (error) {
-			res.writeHead(403); 
-			res.end(JSON.stringify(error));
-		});
+        db.query('DELETE FROM vote WHERE question_id=$1', questionID, qrm.none).then(function () {
+            res.end(JSON.stringify({}));
+        }).catch(function (error) {
+            res.writeHead(403); 
+            res.end(JSON.stringify(error));
+        });
     }).catch(function (error) {
         res.writeHead(403); 
         res.end(JSON.stringify(error));
@@ -481,18 +481,18 @@ app.post('/questions/:questionID(\\d+)/yes', function(req, res, next) {
 }, function (req, res) {
     var userID = req.session.passport.user;
     var questionID = parseInt(req.params.questionID, 10);
-	db.query('with u as (update "vote" set "answer"=1 WHERE user_id=$1 and question_id=$2 returning "answer") select count(*) count from u', [userID,questionID], qrm.one).then(function (data) {
-		if (data.count === '1') {
-			res.end(JSON.stringify({}));
-		} else {
-			db.query('INSERT into vote (question_id,user_id,answer) VALUES ($1,$2,1)', [questionID,userID], qrm.none).then(function () {
-				res.end(JSON.stringify({}));
-			}).catch(function (error) {
-				res.writeHead(403); 
-				res.end(JSON.stringify(error));
-			});
-		}
-	});
+    db.query('with u as (update "vote" set "answer"=1 WHERE user_id=$1 and question_id=$2 returning "answer") select count(*) count from u', [userID,questionID], qrm.one).then(function (data) {
+        if (data.count === '1') {
+            res.end(JSON.stringify({}));
+        } else {
+            db.query('INSERT into vote (question_id,user_id,answer) VALUES ($1,$2,1)', [questionID,userID], qrm.none).then(function () {
+                res.end(JSON.stringify({}));
+            }).catch(function (error) {
+                res.writeHead(403); 
+                res.end(JSON.stringify(error));
+            });
+        }
+    });
 });
 /*
  * Vote no on a question.
@@ -509,18 +509,18 @@ app.post('/questions/:questionID(\\d+)/no', function(req, res, next) {
 }, function (req, res) {
     var userID = req.session.passport.user;
     var questionID = parseInt(req.params.questionID, 10);
-	db.query('with u as (update "vote" set "answer"=0 WHERE user_id=$1 and question_id=$2 returning "answer") select count(*) count from u', [userID,questionID], qrm.one).then(function (data) {
-		if (data.count === '1') {
-			res.end(JSON.stringify({}));
-		} else {
-			db.query('INSERT into vote (question_id,user_id,answer) VALUES ($1,$2,0)', [questionID,userID], qrm.none).then(function () {
-				res.end(JSON.stringify({}));
-			}).catch(function (error) {
-				res.writeHead(403); 
-				res.end(JSON.stringify(error));
-			});
-		}
-	});
+    db.query('with u as (update "vote" set "answer"=0 WHERE user_id=$1 and question_id=$2 returning "answer") select count(*) count from u', [userID,questionID], qrm.one).then(function (data) {
+        if (data.count === '1') {
+            res.end(JSON.stringify({}));
+        } else {
+            db.query('INSERT into vote (question_id,user_id,answer) VALUES ($1,$2,0)', [questionID,userID], qrm.none).then(function () {
+                res.end(JSON.stringify({}));
+            }).catch(function (error) {
+                res.writeHead(403); 
+                res.end(JSON.stringify(error));
+            });
+        }
+    });
 });
 
 
