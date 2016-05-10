@@ -26,6 +26,9 @@ form > table {
 form input {
 	box-sizing: border-box;
 }
+a {
+	text-decoration: none;
+}
 
 .home_page {
 	background-size : cover;
@@ -46,6 +49,12 @@ form input {
 .question-item:not([data-mine='true']) .edit {
 	display:none;
 }
+.center_form {
+	display:inline-block;
+	background-color:white;
+	padding:0.5em;
+	border-radius:0.8em;
+}
 .content {
 	text-align:center;
 }
@@ -54,9 +63,7 @@ form input {
 	border-radius:0.8em;
 	padding:0.2em 0.4em;
 	background-color:#ff8700;
-	display:inline-block;
-	font-size:3em;
-	border:3px solid white;
+	font-size:2em;
 }
 .icon {
 	width:2em;
