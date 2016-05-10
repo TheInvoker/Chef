@@ -4,46 +4,52 @@
 {{{header}}}
 	</head>
 
-	<body>
-		<div class="content box">
-			<h1>
-				QuickyHealth
-			</h1>
-			<p class="important">
-			{{message}}
-			</p>
-			<form id="loginForm" action="/login" method="post">
-				<table>
-					<tr>
-						<td>
-							<label>Email:</label>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<input type="text" name="email" value="joe"/>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<label>Password:</label>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<input type="password" name="password" value="test"/>
-						</td>
-					</tr>
-					<tr>
-						<td>
-							<input type="submit" value="Submit" />
-						</td>
-					</tr>
-				</table>
-			</form>
-			<div>
-				<a href="/forgetpassword">Forgot Password</a> | <a href="/register">Register</a>
+	<body class="home_page">
+	
+		<div class="page">
+			<div class="content box">
+				<div>
+					<div class="main-title">
+						QuickyHealth
+					</div>
+				</div>
+				<p class="important">
+				{{message}}
+				</p>
+				<form id="loginForm" action="/login" method="post">
+					<table>
+						<tr>
+							<td>
+								<label>Email:</label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<input type="text" name="email" value="joe"/>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<label>Password:</label>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<input type="password" name="password" value="test"/>
+							</td>
+						</tr>
+						<tr>
+							<td>
+								<input type="submit" value="Submit" />
+							</td>
+						</tr>
+					</table>
+				</form>
+				<div>
+					<a href="/forgetpassword">Forgot Password</a> | <a href="/register">Register</a>
+				</div>
 			</div>
 		</div>
+		
 	</body>
 </html> 

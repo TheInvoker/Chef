@@ -6,17 +6,17 @@ html, body {
 body {
 	overflow-x: hidden;
 	overflow-y: hidden;
-	background-color:#d2d2d2;
 }
 .page {
 	overflow-y: auto;
 	height:100%;
 }
+
+
+
 body,input,button {
 	font-family: Open Sans;
 }
-
-
 form {
 	display:inline-block;
 }
@@ -26,12 +26,37 @@ form > table {
 form input {
 	box-sizing: border-box;
 }
+
+.home_page {
+	background-size : cover;
+	background-position : center center;
+	background-image:url('/image/download.jpg');
+}
 #loginForm input[type='submit'] {
 	width:100%;
 }
 
+
+
+
+.question-item[data-mine='true'] {
+	border:1px solid red;
+}
+.question-item:not([data-mine='true']) .delete,
+.question-item:not([data-mine='true']) .edit {
+	display:none;
+}
 .content {
 	text-align:center;
+}
+.main-title {
+	color:white;
+	border-radius:0.8em;
+	padding:0.2em 0.4em;
+	background-color:#ff8700;
+	display:inline-block;
+	font-size:3em;
+	border:3px solid white;
 }
 .icon {
 	width:2em;
@@ -47,22 +72,10 @@ form input {
 	font-size:2em;
 	display:inline-block;
 }
-
 .box {
 	margin:1em;
 	padding:1em;
-	border:1px solid #ddd;
-	background-color:white;
 }
-.question-item[data-mine='true'] {
-	border:1px solid red;
-}
-.question-item:not([data-mine='true']) .delete,
-.question-item:not([data-mine='true']) .edit {
-	display:none;
-}
-
-
 .important {
 	color:red;
 }
