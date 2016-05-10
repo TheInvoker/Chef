@@ -27,7 +27,7 @@
 					{{#with this}}
 						<div class="question-item box" data-id="{{id}}" data-mine="{{mine}}">
 							<h4>
-								{{question}}
+								<a href="/question/{{id}}">{{question}}</a>
 							</h4>
 							<div>
 								{{username}}
@@ -43,9 +43,6 @@
 							</div>
 							<div>
 								<button class="delete">Delete</button> <button class="edit">Edit</button>
-							</div>
-							<div>
-								<a href="/question/{{id}}">Link</a>
 							</div>
 						</div>
 					{{/with}}
