@@ -65,6 +65,13 @@ a {
 	background-color:#ff8700;
 	font-size:2em;
 }
+.sub_message {
+	color:white;
+	font-weight:bold;
+	font-size:1.3em;
+	font-style: italic;
+	text-shadow: 2px 2px #000000;
+}
 .icon {
 	width:2em;
 	height:2em;
